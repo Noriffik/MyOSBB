@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MyOSBB.Data;
 using MyOSBB.Models;
 using MyOSBB.Services;
+using MyOSBB.Infrastructure;
 
 namespace MyOSBB
 {
@@ -26,10 +27,25 @@ namespace MyOSBB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Validation for registration
+            services.AddTransient<IPasswordValidator<ApplicationUser>,
+                CustomPasswordValidator>();
+            services.AddTransient<IUserValidator<ApplicationUser>,
+                CustomUserValidator>();
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(
+                opts => {
+                    opts.User.RequireUniqueEmail = true;
+                    //opts.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyz";
+                    opts.Password.RequiredLength = 6;
+                    opts.Password.RequireNonAlphanumeric = false;
+                    opts.Password.RequireLowercase = true;
+                    opts.Password.RequireUppercase = true;
+                    opts.Password.RequireDigit = true;
+                })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -63,6 +79,9 @@ namespace MyOSBB
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            // Comment before Add-Migration
+            ApplicationDbContext.CreateAdminAccount(app.ApplicationServices, Configuration).Wait();
         }
     }
 }
