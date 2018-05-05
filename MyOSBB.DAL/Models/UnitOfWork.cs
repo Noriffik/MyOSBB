@@ -5,6 +5,7 @@ using MyOSBB.DAL.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MyOSBB.DAL.Models
 {
@@ -39,9 +40,14 @@ namespace MyOSBB.DAL.Models
             }
         }
 
-        public void Save()
+        public void SaveChanges()
         {
             db.SaveChanges();
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await db.SaveChangesAsync();
         }
 
         private bool disposed = false;

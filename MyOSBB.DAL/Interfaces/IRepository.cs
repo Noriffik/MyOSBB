@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,6 +8,7 @@ namespace MyOSBB.DAL.Interfaces
     public interface IRepository<TEntity> where TEntity : class
     {
         IEnumerable<TEntity> GetAll();
+        DbSet<TEntity> Get();
         TEntity GetByID(object id);
         void Insert(TEntity entity);
         void Delete(object id);

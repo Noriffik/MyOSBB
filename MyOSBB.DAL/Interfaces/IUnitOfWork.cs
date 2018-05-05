@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MyOSBB.DAL.Interfaces
 {
@@ -9,6 +10,7 @@ namespace MyOSBB.DAL.Interfaces
     {
         IRepository<ApplicationUser> Users { get; }
         IRepository<Contribution> Contributions { get; }
-        void Save();
+        void SaveChanges();
+        Task<int> SaveChangesAsync();
     }
 }

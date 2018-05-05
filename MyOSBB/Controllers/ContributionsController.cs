@@ -20,17 +20,13 @@ namespace MyOSBB.Controllers
         public ContributionsController(ApplicationDbContext context)
         {
             _context = context;
-        }
-
-        public ContributionsController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = new UnitOfWork(_context);
         }
 
         // GET: Contributions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Contributions.ToListAsync());
+            return View(await _unitOfWork.Contributions.Get().ToListAsync());
         }
 
         // GET: Contributions/Details/5
@@ -41,7 +37,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions
+            var contribution = await _unitOfWork.Contributions.Get()
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
@@ -68,8 +64,8 @@ namespace MyOSBB.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(contribution);
-                await _context.SaveChangesAsync();
+                _unitOfWork.Contributions.Get().Add(contribution);
+                await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(contribution);
@@ -84,7 +80,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
+            var contribution = await _unitOfWork.Contributions.Get().SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
                 return NotFound();
@@ -109,8 +105,8 @@ namespace MyOSBB.Controllers
             {
                 try
                 {
-                    _context.Update(contribution);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.Contributions.Update(contribution);
+                    await _unitOfWork.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -137,7 +133,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions
+            var contribution = await _unitOfWork.Contributions.Get()
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
@@ -153,15 +149,15 @@ namespace MyOSBB.Controllers
         [Authorize(Roles = "Admins")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Contributions.Remove(contribution);
-            await _context.SaveChangesAsync();
+            var contribution = await _unitOfWork.Contributions.Get().SingleOrDefaultAsync(m => m.Id == id);
+            _unitOfWork.Contributions.Get().Remove(contribution);
+            await _unitOfWork.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ContributionExists(int id)
         {
-            return _context.Contributions.Any(e => e.Id == id);
+            return _unitOfWork.Contributions.Get().Any(e => e.Id == id);
         }
     }
 }
