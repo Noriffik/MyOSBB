@@ -57,7 +57,10 @@ namespace MyOSBB.Controllers
 
             var model = new IndexViewModel
             {
-                Username = user.UserName,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                FlatNumber = user.FlatNumber,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 IsEmailConfirmed = user.EmailConfirmed,
@@ -80,6 +83,49 @@ namespace MyOSBB.Controllers
             if (user == null)
             {
                 throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var userName = user.UserName;
+            if (model.UserName != userName)
+            {
+                var setUserNameResult = await _userManager.SetUserNameAsync(user, model.UserName);
+                if (!setUserNameResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting user name for user with ID '{user.Id}'.");
+                }
+            }
+
+            var userFirstName = user.FirstName;
+            if (model.FirstName != userFirstName)
+            {
+                user.FirstName = model.FirstName;
+                var setFirstNameResult = await _userManager.UpdateAsync(user);
+                if (!setFirstNameResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting first name for user with ID '{user.Id}'.");
+                }
+            }
+
+            var userLastName = user.LastName;
+            if (model.LastName != userLastName)
+            {
+                user.LastName = model.LastName;
+                var setLastNameResult = await _userManager.UpdateAsync(user);
+                if (!setLastNameResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting last name for user with ID '{user.Id}'.");
+                }
+            }
+
+            var userFlatNumber = user.FlatNumber;
+            if (model.FlatNumber != userFlatNumber)
+            {
+                user.FlatNumber = model.FlatNumber;
+                var setFlatNumberResult = await _userManager.UpdateAsync(user);
+                if (!setFlatNumberResult.Succeeded)
+                {
+                    throw new ApplicationException($"Unexpected error occurred setting flat number for user with ID '{user.Id}'.");
+                }
             }
 
             var email = user.Email;

@@ -98,47 +98,52 @@ namespace MyOSBB.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(string id, string email,
-                string password)
+        public async Task<IActionResult> Edit(string id, string email, bool emailConfirmed, string password)
         {
             ApplicationUser user = await userManager.FindByIdAsync(id);
             if (user != null)
             {
-                user.Email = email;
-                IdentityResult validEmail
-                    = await userValidator.ValidateAsync(userManager, user);
-                if (!validEmail.Succeeded)
+                user.EmailConfirmed = emailConfirmed;
+                //IdentityResult validEmail = await userValidator.ValidateAsync(userManager, user);
+                //if (!validEmail.Succeeded)
+                //{
+                //    AddErrorsFromResult(validEmail);
+                //}
+                //IdentityResult validPass = null;
+                //if (!string.IsNullOrEmpty(password))
+                //{
+                //    validPass = await passwordValidator.ValidateAsync(userManager, user, password);
+                //    if (validPass.Succeeded)
+                //    {
+                //        user.PasswordHash = passwordHasher.HashPassword(user, password);
+                //    }
+                //    else
+                //    {
+                //        AddErrorsFromResult(validPass);
+                //    }
+                //}
+
+                //if ((validEmail.Succeeded && validPass == null) || (validEmail.Succeeded && password != string.Empty && validPass.Succeeded))
+                //{
+                //    IdentityResult result = await userManager.UpdateAsync(user);
+                //    if (result.Succeeded)
+                //    {
+                //        return RedirectToAction("Index");
+                //    }
+                //    else
+                //    {
+                //        AddErrorsFromResult(result);
+                //    }
+                //}
+
+                IdentityResult result = await userManager.UpdateAsync(user);
+                if (result.Succeeded)
                 {
-                    AddErrorsFromResult(validEmail);
+                    return RedirectToAction("Index");
                 }
-                IdentityResult validPass = null;
-                if (!string.IsNullOrEmpty(password))
+                else
                 {
-                    validPass = await passwordValidator.ValidateAsync(userManager,
-                        user, password);
-                    if (validPass.Succeeded)
-                    {
-                        user.PasswordHash = passwordHasher.HashPassword(user,
-                            password);
-                    }
-                    else
-                    {
-                        AddErrorsFromResult(validPass);
-                    }
-                }
-                if ((validEmail.Succeeded && validPass == null)
-                        || (validEmail.Succeeded
-                        && password != string.Empty && validPass.Succeeded))
-                {
-                    IdentityResult result = await userManager.UpdateAsync(user);
-                    if (result.Succeeded)
-                    {
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        AddErrorsFromResult(result);
-                    }
+                    AddErrorsFromResult(result);
                 }
             }
             else

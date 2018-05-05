@@ -8,7 +8,20 @@ namespace MyOSBB.Models.ManageViewModels
 {
     public class IndexViewModel
     {
-        public string Username { get; set; }
+        [Required]
+        public string UserName { get; set; }
+
+        [Required]
+        [Display(Name = "First name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Last name")]
+        public string LastName { get; set; }
+
+        [Required]
+        [Display(Name = "Flat number")]
+        public string FlatNumber { get; set; }
 
         public bool IsEmailConfirmed { get; set; }
 

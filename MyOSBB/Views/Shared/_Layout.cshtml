@@ -17,6 +17,8 @@
     </environment>
 </head>
 <body>
+    @inject SignInManager<ApplicationUser> SignInManager
+    @inject UserManager<ApplicationUser> UserManager
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -33,6 +35,17 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li><a asp-area="" asp-controller="Manage" asp-action="Index">Manage account</a></li>
+                        <li><a asp-area="" asp-controller="Contributions" asp-action="Index">Contributions</a></li>
+                        if(User.IsInRole("Admins"))
+                        {
+                            <li><a asp-area="" asp-controller="Admin" asp-action="Index">Admin</a></li>
+                            <li><a asp-area="" asp-controller="RoleAdmin" asp-action="Index">Role Admin</a></li>
+                        }
+                    }
+                    <li><a asp-area="" asp-controller="Home" asp-action="Admin">Reset admin</a></li>
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>

@@ -32,9 +32,12 @@ namespace MyOSBB
                 CustomPasswordValidator>();
             services.AddTransient<IUserValidator<ApplicationUser>,
                 CustomUserValidator>();
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+#if DEBUG
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("RealHostConnection")));
+#else
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("RealHostLocalConnection")));
+#endif
 
             services.AddIdentity<ApplicationUser, IdentityRole>(
                 opts => {
@@ -45,6 +48,7 @@ namespace MyOSBB
                     opts.Password.RequireLowercase = true;
                     opts.Password.RequireUppercase = true;
                     opts.Password.RequireDigit = true;
+                    opts.SignIn.RequireConfirmedEmail = true;
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -80,8 +84,8 @@ namespace MyOSBB
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            // Comment before Add-Migration
-            ApplicationDbContext.CreateAdminAccount(app.ApplicationServices, Configuration).Wait();
+            // Comment before Add-Migration and Update-Database
+            //ApplicationDbContext.CreateAdminAccount(app.ApplicationServices, Configuration).Wait();
         }
     }
 }

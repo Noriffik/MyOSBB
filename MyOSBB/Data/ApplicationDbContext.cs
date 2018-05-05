@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyOSBB.Models;
+using MyOSBB.Models.Invoices;
 
 namespace MyOSBB.Data
 {
@@ -31,12 +32,24 @@ namespace MyOSBB.Data
             UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
+            if (await roleManager.FindByNameAsync("Admins") == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admins"));
+            }
+            if (await roleManager.FindByNameAsync("Users") == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole("Users"));
+            }
+
             string username = configuration["AdminUser:Name"];
             string email = configuration["AdminUser:Email"];
             string password = configuration["AdminUser:Password"];
             string role = configuration["AdminUser:Role"];
+            bool emailConfirmed = configuration["AdminUser:EmailConfirmed"] == "true" ? true : false;
 
-            if (await userManager.FindByNameAsync(username) == null)
+            var admin = await userManager.FindByNameAsync(username);
+
+            if (admin == null)
             {
                 if (await roleManager.FindByNameAsync(role) == null)
                 {
@@ -46,7 +59,8 @@ namespace MyOSBB.Data
                 ApplicationUser user = new ApplicationUser
                 {
                     UserName = username,
-                    Email = email
+                    Email = email,
+                    EmailConfirmed = emailConfirmed
                 };
 
                 IdentityResult result = await userManager.CreateAsync(user, password);
@@ -55,6 +69,19 @@ namespace MyOSBB.Data
                     await userManager.AddToRoleAsync(user, role);
                 }
             }
+            //else
+            //{
+            //    admin.UserName = username;
+            //    admin.Email = email;
+            //    admin.EmailConfirmed = emailConfirmed;
+            //    await userManager.UpdateAsync(admin);
+            //}
         }
+
+        public DbSet<Announcement> Announcements { get; set; }
+        public DbSet<InvoiceBase> Invoices { get; set; }
+        public DbSet<InvoiceGaz> GazInvoices { get; set; }
+        public DbSet<InvoiceElectro> ElectroInvoices { get; set; }
+        public DbSet<Contribution> Contributions { get; set; }
     }
 }

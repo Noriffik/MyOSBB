@@ -13,6 +13,18 @@ namespace MyOSBB.Models.AccountViewModels
         public string UserName { get; set; }
 
         [Required]
+        [Display(Name = "First name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Last name")]
+        public string LastName { get; set; }
+
+        [Required]
+        [Display(Name = "Flat number")]
+        public string FlatNumber { get; set; }
+
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
