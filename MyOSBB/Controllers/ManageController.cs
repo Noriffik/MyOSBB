@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MyOSBB.Models;
-using MyOSBB.Models.ManageViewModels;
+using MyOSBB.DAL.Models;
+using MyOSBB.DAL.Models.ManageViewModels;
 using MyOSBB.Services;
 
 namespace MyOSBB.Controllers

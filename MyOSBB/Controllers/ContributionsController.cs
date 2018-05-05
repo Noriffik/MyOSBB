@@ -6,19 +6,25 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MyOSBB.Data;
-using MyOSBB.Models;
+using MyOSBB.DAL.Models;
+using MyOSBB.DAL.Data;
 
 namespace MyOSBB.Controllers
 {
     [Authorize(Roles = "Admins,Users")]
     public class ContributionsController : Controller
     {
+        private readonly UnitOfWork _unitOfWork;
         private readonly ApplicationDbContext _context;
 
         public ContributionsController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public ContributionsController(UnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Contributions

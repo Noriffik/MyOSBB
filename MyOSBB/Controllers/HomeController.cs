@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using MyOSBB.Data;
-using MyOSBB.Models;
+using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
 {

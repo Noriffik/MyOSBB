@@ -8,10 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyOSBB.Data;
-using MyOSBB.Models;
+using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 using MyOSBB.Services;
 using MyOSBB.Infrastructure;
+using MyOSBB.DAL.Interfaces;
 
 namespace MyOSBB
 {
@@ -55,6 +56,8 @@ namespace MyOSBB
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+
+            services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             services.AddMvc();
         }

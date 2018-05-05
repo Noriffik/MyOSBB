@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyOSBB.DAL.Models;
+using MyOSBB.DAL.Models.Invoices;
 using System;
 using System.Collections.Generic;
 using System.Text;
