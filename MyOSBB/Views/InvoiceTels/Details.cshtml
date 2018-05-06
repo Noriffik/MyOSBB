@@ -1,0 +1,72 @@
+﻿@model MyOSBB.DAL.Models.Invoices.InvoiceTel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>InvoiceTel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FlatNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FlatNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.InvoiceDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.InvoiceDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ProviderName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ProviderName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Payment)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Payment)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ForPeriod)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ForPeriod)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Debt)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Debt)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Overpaid)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Overpaid)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TelNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TelNumber)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
