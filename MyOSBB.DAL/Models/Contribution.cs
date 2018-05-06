@@ -9,7 +9,9 @@ namespace MyOSBB.DAL.Models
     {
         public int Id { get; set; }
         public string FlatNumber { get; set; }
-        public ApplicationUser User { get; set; }
-        public decimal Sum { get; set; }
+        public string UserId { get; set; }
+        public string Payment { get; set; }
+        public DateTime PaymentDate { get; set; }
+        public string ForPeriod { get; set; }
     }
 }

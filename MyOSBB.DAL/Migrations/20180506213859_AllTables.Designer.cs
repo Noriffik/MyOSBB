@@ -8,12 +8,13 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using MyOSBB.DAL.Data;
 using System;
 
-namespace MyOSBB.DAL.Data.Migrations
+namespace MyOSBB.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180506213859_AllTables")]
+    partial class AllTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,11 +136,7 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.Property<string>("Content");
 
-                    b.Property<DateTime>("Date");
-
                     b.Property<string>("Name");
-
-                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
@@ -210,15 +207,13 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.Property<string>("FlatNumber");
 
-                    b.Property<string>("ForPeriod");
-
-                    b.Property<string>("Payment");
-
-                    b.Property<DateTime>("PaymentDate");
+                    b.Property<decimal>("Sum");
 
                     b.Property<string>("UserId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Contributions");
                 });
@@ -406,6 +401,13 @@ namespace MyOSBB.DAL.Data.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Contribution", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618
         }

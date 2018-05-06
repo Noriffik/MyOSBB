@@ -13,6 +13,7 @@ namespace MyOSBB.DAL.Models
     {
         private readonly ApplicationDbContext db;
         private Repository<ApplicationUser> usersRepository;
+        private Repository<Announcement> announcementRepository;
         private Repository<Contribution> contributionRepository;
 
         public UnitOfWork(ApplicationDbContext context)
@@ -27,6 +28,16 @@ namespace MyOSBB.DAL.Models
                 if (usersRepository == null)
                     usersRepository = new Repository<ApplicationUser>(db);
                 return usersRepository;
+            }
+        }
+
+        public IRepository<Announcement> Announcements
+        {
+            get
+            {
+                if (announcementRepository == null)
+                    announcementRepository = new Repository<Announcement>(db);
+                return announcementRepository;
             }
         }
 

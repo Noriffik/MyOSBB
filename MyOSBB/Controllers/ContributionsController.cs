@@ -8,19 +8,18 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 
 namespace MyOSBB.Controllers
 {
     [Authorize(Roles = "Admins,Users")]
     public class ContributionsController : Controller
     {
-        private readonly UnitOfWork _unitOfWork;
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ContributionsController(ApplicationDbContext context)
+        public ContributionsController(IUnitOfWork unitOfWork)
         {
-            _context = context;
-            _unitOfWork = new UnitOfWork(_context);
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Contributions
@@ -133,8 +132,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _unitOfWork.Contributions.Get()
-                .SingleOrDefaultAsync(m => m.Id == id);
+            var contribution = await _unitOfWork.Contributions.Get().SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
                 return NotFound();

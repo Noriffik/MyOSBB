@@ -38,7 +38,9 @@
                     @if (SignInManager.IsSignedIn(User))
                     {
                         <li><a asp-area="" asp-controller="Manage" asp-action="Index">Manage account</a></li>
+                        <li><a asp-area="" asp-controller="Announcements" asp-action="Index">Announcements</a></li>
                         <li><a asp-area="" asp-controller="Contributions" asp-action="Index">Contributions</a></li>
+                        <li><a asp-area="" asp-controller="UserData" asp-action="Index">User data</a></li>
                         if(User.IsInRole("Admins"))
                         {
                             <li><a asp-area="" asp-controller="Admin" asp-action="Index">Admin</a></li>
