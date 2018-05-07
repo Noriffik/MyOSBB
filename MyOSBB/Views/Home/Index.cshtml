@@ -2,6 +2,9 @@
     ViewData["Title"] = "Home Page";
 }
 
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
 <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="6000">
     <ol class="carousel-indicators">
         <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
@@ -65,8 +68,50 @@
     </a>
 </div>
 
-<div class="row">
-    <div class="col-md-3">
+    @if (SignInManager.IsSignedIn(User))
+    {
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Welcome @UserManager.GetUserName(User) to OSBB site.</h2>
+            <p>
+                As the member of OSBB you can get access to your personal information and common information of OSBB.<br />
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h3>You can look at your invoices and your contributions to OSBB on the <a asp-area="" asp-controller="UserData" asp-action="Index">User data</a> page.</h3>
+        </div>
+        <div class="col-md-4">
+            <h3>Also you can edit your profile, make annoucements on the <a asp-area="" asp-controller="Manage" asp-action="Index">Manage account</a> page.</h3>
+        </div>
+        @if (User.IsInRole("Admins"))
+        {
+        <div class="col-md-4">
+            <h3>As the admin you additionaly have access to all users data.</h3>
+        </div>
+
+        }
+        else
+        {
+        <div class="col-md-4">
+            <h3>As the user you see and get information only for you and your flat.</h3>
+        </div>
+        }
+    </div>
+    }
+    else
+    {
+    <div class="col-md-12">
+        <h2>Welcome to OSBB site.</h2>
+        <p>
+            As the guest you can see only public information on the site.<br />
+            It is this page, page of public information about OSBB and contact page.
+        </p>
+    </div>
+}
+@*<div class="row">
+    <div class="col-c-3">
         <h2>Application uses</h2>
         <ul>
             <li>Sample pages using ASP.NET Core MVC</li>
@@ -103,4 +148,4 @@
             <li><a href="https://go.microsoft.com/fwlink/?LinkID=398609">Publish to Microsoft Azure Web Apps</a></li>
         </ul>
     </div>
-</div>
+</div>*@
