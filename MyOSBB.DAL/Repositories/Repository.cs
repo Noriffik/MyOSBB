@@ -48,17 +48,17 @@ namespace MyOSBB.DAL.Repositories
 
         public void Delete(TEntity entityToDelete)
         {
-            if (_context.Entry(entityToDelete).State == EntityState.Detached)
-            {
-                dbSet.Attach(entityToDelete);
-            }
+            //if (_context.Entry(entityToDelete).State == EntityState.Detached)
+            //{
+            //    dbSet.Attach(entityToDelete);
+            //}
             dbSet.Remove(entityToDelete);
         }
 
         public void Update(TEntity entityToUpdate)
         {
-            dbSet.Attach(entityToUpdate);
-            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            dbSet.Update(entityToUpdate);
+            //_context.Entry(entityToUpdate).State = EntityState.Modified;
         }
     }
 }

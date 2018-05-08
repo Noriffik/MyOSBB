@@ -1,5 +1,5 @@
 ﻿body {
-    padding-top: 50px;
+    padding-top: 150px;
     padding-bottom: 20px;
 }
 
@@ -32,4 +32,9 @@
     .carousel-caption {
         display: none;
     }
+}
+
+.bg-primary {
+    height: 50px;
+    padding: 5px;
 }

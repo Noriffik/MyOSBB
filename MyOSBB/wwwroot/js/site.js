@@ -1,21 +1,25 @@
 ﻿// Write your JavaScript code.
+
+var pageShow;
 function userData(index) {
     switch (index) {
         case 0:
-            page0();
+            pageShow = page0;
+            pageShow();
             break;
         case 1:
-            page1();
+            pageShow = page1;
+            pageShow();
             break;
     }
 }
 
 function page0() {
     $.getJSON("/api/AnnouncementsApi").done( function (data) {
-        var userhtml = '<table id="userDataTable" class="table"><thead><tr><th onclick="sortTable(0)">Name <span id="userDataSpan0"><</span></th><th onclick="sortTable(1)">Content <span id="userDataSpan1"><</span></th><th onclick="sortTable(2)">Date <span id="userDataSpan2"><</span></th><th onclick="sortTable(3)">UserId <span id="userDataSpan3"><</span></th><th></th></tr></thead><tbody>';
+        var userhtml = '<div class="bg-primary text-white"><h4>Announcements</h4></div><br /><table id="userDataTable" class="table table-sm table-bordered"><thead><tr><th onclick="sortTable(0)">Title <span id="userDataSpan0"></span></th><th onclick="sortTable(1)">Content <span id="userDataSpan1"></span></th><th onclick="sortTable(2)">Date <span id="userDataSpan2"></span></th><th onclick="sortTable(3)">UserId <span id="userDataSpan3"></span></th></tr></thead><tbody>';
         data.forEach(function (item) {
             console.log(item);
-            userhtml += '<tr><td>' + item.name + '</td><td>' + item.content + '</td><td>' + item.date + '</td><td>' + item.userId + '</td></tr>';
+            userhtml += '<tr><td>' + item.title + '</td><td>' + item.content + '</td><td>' + item.date + '</td><td>' + item.userId + '</td></tr>';
         });
             userhtml += '</tbody></table>';
 
@@ -25,10 +29,10 @@ function page0() {
 
 function page1() {
     $.getJSON("/api/AnnouncementsApi").done(function (data) {
-        var userhtml = '<table id="userDataTable" class="table"><thead><tr><th onclick="sortTable(0)">Name <span id="userDataSpan0"><</span></th><th onclick="sortTable(1)">Content <span id="userDataSpan1"><</span></th><th onclick="sortTable(2)">Date <span id="userDataSpan2"><</span></th><th onclick="sortTable(3)">UserId <span id="userDataSpan3"><</span></th><th></th></tr></thead><tbody>';
+        var userhtml = '<div class="bg-primary text-white"><h4>Contributions</h4></div><br /><table id="userDataTable" class="table table-sm table-bordered"><thead><tr><th onclick="sortTable(0)">Title <span id="userDataSpan0"></span></th><th onclick="sortTable(1)">Content <span id="userDataSpan1"></span></th><th onclick="sortTable(2)">Date <span id="userDataSpan2"></span></th><th onclick="sortTable(3)">UserId <span id="userDataSpan3"></span></th></tr></thead><tbody>';
         data.forEach(function (item) {
             console.log(item);
-            userhtml += '<tr><td>' + item.name + '</td><td>' + item.content + '</td><td>' + item.date + '</td><td>' + item.userId + '</td></tr>';
+            userhtml += '<tr><td>' + item.title + '</td><td>' + item.content + '</td><td>' + item.date + '</td><td>' + item.userId + '</td></tr>';
         });
         userhtml += '</tbody></table>';
 
@@ -41,12 +45,28 @@ function page1() {
 //}, 'json');
 
 function sortTable(index) {
-    var spanIndex = document.getElementById("userDataSpan" + index).textContent;
-    //alert("#userDataSpan" + index + "_" + spanIndex);
-    if (spanIndex === "<") {
-        $("#userDataSpan" + index).text(">");
+    var spanClass = document.getElementById("userDataSpan" + index).className;
+    //alert(spanClass);
+    for (i = 0; i < 7; i++) {
+        if (i !== index) {
+            $("#userDataSpan" + i).removeAttr("class");
+        }
+    }
+    var sort = "0";
+    if (spanClass === "") {
+        $("#userDataSpan" + index).addClass("glyphicon glyphicon-triangle-bottom");
+        sort = "1";
     } else {
-        $("#userDataSpan" + index).text("<");
+        if (spanClass === "glyphicon glyphicon-triangle-bottom") {
+            $("#userDataSpan" + index).removeClass("glyphicon glyphicon-triangle-bottom");
+            $("#userDataSpan" + index).addClass("glyphicon glyphicon-triangle-top");
+            sort = "2";
+        } else {
+            if (spanClass === "glyphicon glyphicon-triangle-top") {
+                $("#userDataSpan" + index).removeClass("glyphicon glyphicon-triangle-top");
+                sort = "0";
+            }
+        }
     }
 
     var table, rows, switching, i, x, y, shouldSwitch;
@@ -68,7 +88,7 @@ function sortTable(index) {
             x = rows[i].getElementsByTagName("TD")[index];
             y = rows[i + 1].getElementsByTagName("TD")[index];
             // Check if the two rows should switch place:
-            if (spanIndex === "<") {
+            if (sort === "1") {
                 if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
                     // I so, mark as a switch and break the loop:
                     shouldSwitch = true;
@@ -76,10 +96,15 @@ function sortTable(index) {
                 }
             }
             else {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                    // I so, mark as a switch and break the loop:
-                    shouldSwitch = true;
-                    break;
+                if (sort === "2") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        // I so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                else {
+                    pageShow();
                 }
             }
         }

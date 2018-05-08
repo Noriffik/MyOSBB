@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<Contribution>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Contributions index";
 }
 
-<h2>Index</h2>
+<h2>Contributions</h2>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -37,7 +37,7 @@
                 @Html.DisplayFor(modelItem => item.Payment)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PaymentDate)
+                @item.PaymentDate.ToShortDateString()
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ForPeriod)

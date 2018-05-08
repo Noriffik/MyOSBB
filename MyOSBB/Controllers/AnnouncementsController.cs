@@ -64,7 +64,7 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Content,Date,UserId")] Announcement announcement)
+        public async Task<IActionResult> Create([Bind("Id,Title,Content,Date,UserId")] Announcement announcement)
         {
             if (ModelState.IsValid)
             {
@@ -96,7 +96,7 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Content")] Announcement announcement)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,Date,UserId")] Announcement announcement)
         {
             if (id != announcement.Id)
             {
@@ -105,22 +105,12 @@ namespace MyOSBB.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _unitOfWork.Announcements.Update(announcement);
-                    await _unitOfWork.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AnnouncementExists(announcement.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var ann = await _unitOfWork.Announcements.Get().SingleOrDefaultAsync(m => m.Id == id);
+                ann.Title = announcement.Title;
+                ann.Content = announcement.Content;
+                ann.Date = announcement.Date;
+                _unitOfWork.Announcements.Update(ann);
+                await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(announcement);
@@ -148,8 +138,7 @@ namespace MyOSBB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var announcement = await _unitOfWork.Announcements.Get().SingleOrDefaultAsync(m => m.Id == id);
-            _unitOfWork.Announcements.Get().Remove(announcement);
+            _unitOfWork.Announcements.Delete(id);
             await _unitOfWork.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
