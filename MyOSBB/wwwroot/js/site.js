@@ -8,9 +8,6 @@ jQuery.loadScript = function (url, callback) {
     });
 }
 
-//$.loadScript('~/lib/jquery/dist/jquery.min.js', function () {
-//    //Stuff to do after someScript has loaded
-//});
 $.loadScript('https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js', function () {
     //Stuff to do after someScript has loaded
 });
@@ -18,6 +15,10 @@ $.loadScript('https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js'
     //Stuff to do after someScript has loaded
 });
 
+//$('#userDataTable').DataTable({
+//    "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+//});
+var table;
 var pageShow;
 function userData(index) {
     switch (index) {
@@ -78,9 +79,22 @@ function page0() {
         $("#userDataTable thead").html(htmlThead);
         $("#userDataTable tbody").html(htmlTbody);
         
-        $('#userDataTable').DataTable({
+        //$('#userDataTable').DataTable({
+        //        "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+        //});
+
+        if ($.fn.dataTable.isDataTable('#userDataTable')) {
+            table = $('#userDataTable').DataTable();
+        }
+        else {
+            table = $('#userDataTable').DataTable({
                 "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
             });
+        }
+        table
+            .search('')
+            .columns().search('')
+            .draw();
     });
 }
 
@@ -106,9 +120,18 @@ function page1() {
         $("#userDataTable thead").html(htmlThead);
         $("#userDataTable tbody").html(htmlTbody);
 
-        $('#userDataTable').DataTable({
-            "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
-        });
+        if ($.fn.dataTable.isDataTable('#userDataTable')) {
+            table = $('#userDataTable').DataTable();
+        }
+        else {
+            table = $('#userDataTable').DataTable({
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+            });
+        }
+        table
+            .search('')
+            .columns().search('')
+            .draw();
     });
 }
 
