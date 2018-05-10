@@ -1,7 +1,7 @@
 ﻿@model MyOSBB.DAL.Models.Announcement
 
 @{
-    ViewData["Title"] = "Announcement Details";
+    ViewData["Title"] = "Details";
 }
 
 <h2>Details</h2>
@@ -26,7 +26,13 @@
             @Html.DisplayNameFor(model => model.Date)
         </dt>
         <dd>
-            @Model.Date.ToShortDateString()
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.User)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.UserName)
         </dd>
     </dl>
 </div>

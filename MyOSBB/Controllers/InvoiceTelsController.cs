@@ -2,27 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 
 namespace MyOSBB.Controllers
 {
+    [Authorize(Roles = "Users")]
     public class InvoiceTelsController : Controller
     {
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
 
-        public InvoiceTelsController(ApplicationDbContext context)
+        public InvoiceTelsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
+            _userManager = userManager;
             _context = context;
         }
 
         // GET: InvoiceTels
         public async Task<IActionResult> Index()
         {
-            return View(await _context.InvoiceTels.ToListAsync());
+            var applicationDbContext = _context.InvoiceTels.Include(i => i.Month).Include(i => i.User);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: InvoiceTels/Details/5
@@ -34,6 +41,8 @@ namespace MyOSBB.Controllers
             }
 
             var invoiceTel = await _context.InvoiceTels
+                .Include(i => i.Month)
+                .Include(i => i.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (invoiceTel == null)
             {
@@ -46,6 +55,9 @@ namespace MyOSBB.Controllers
         // GET: InvoiceTels/Create
         public IActionResult Create()
         {
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name");
+            var user = _userManager.GetUserAsync(User).Result;
+            ViewData["UserId"] = _context.Users.Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
             return View();
         }
 
@@ -54,7 +66,7 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,FlatNumber,InvoiceDate,ProviderName,Payment,ForPeriod,Debt,Overpaid,TelNumber")] InvoiceTel invoiceTel)
+        public async Task<IActionResult> Create([Bind("Id,InvoiceDate,ProviderName,Payment,Debt,Overpaid,TelNumber,UserId,MonthId")] InvoiceTel invoiceTel)
         {
             if (ModelState.IsValid)
             {
@@ -62,6 +74,8 @@ namespace MyOSBB.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceTel.MonthId);
+            ViewData["UserId"] = invoiceTel.UserId;
             return View(invoiceTel);
         }
 
@@ -78,6 +92,8 @@ namespace MyOSBB.Controllers
             {
                 return NotFound();
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceTel.MonthId);
+            ViewData["UserId"] = invoiceTel.UserId;
             return View(invoiceTel);
         }
 
@@ -86,7 +102,7 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,FlatNumber,InvoiceDate,ProviderName,Payment,ForPeriod,Debt,Overpaid,TelNumber")] InvoiceTel invoiceTel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,InvoiceDate,ProviderName,Payment,Debt,Overpaid,TelNumber,UserId,MonthId")] InvoiceTel invoiceTel)
         {
             if (id != invoiceTel.Id)
             {
@@ -113,6 +129,8 @@ namespace MyOSBB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceTel.MonthId);
+            ViewData["UserId"] = invoiceTel.UserId;
             return View(invoiceTel);
         }
 
@@ -125,6 +143,8 @@ namespace MyOSBB.Controllers
             }
 
             var invoiceTel = await _context.InvoiceTels
+                .Include(i => i.Month)
+                .Include(i => i.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (invoiceTel == null)
             {

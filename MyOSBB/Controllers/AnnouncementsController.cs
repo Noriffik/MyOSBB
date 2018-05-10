@@ -8,29 +8,27 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
-using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
 {
-    [Authorize(Roles = "Admins,Users")]
+    [Authorize(Roles = "Users")]
     public class AnnouncementsController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IUnitOfWork _unitOfWork;
+        private UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public AnnouncementsController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IUnitOfWork unitOfWork)
+        public AnnouncementsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         // GET: Announcements
         public async Task<IActionResult> Index()
         {
-            return View(await _unitOfWork.Announcements.Get().ToListAsync());
+            var applicationDbContext = _context.Announcements.Include(a => a.User);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Announcements/Details/5
@@ -41,7 +39,9 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var announcement = await _unitOfWork.Announcements.Get().SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _context.Announcements
+                .Include(a => a.User)
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
             {
                 return NotFound();
@@ -53,10 +53,10 @@ namespace MyOSBB.Controllers
         // GET: Announcements/Create
         public IActionResult Create()
         {
-            //var user = _userManager.FindByNameAsync(User.Identity.Name);
-            var user = _userManager.GetUserAsync(User);
-            Announcement announcement = new Announcement() { UserId = user.Result.Id };
-            return View(announcement);
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+            var user = _userManager.GetUserAsync(User).Result;
+            ViewData["UserId"] = _context.Users.Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
+            return View();
         }
 
         // POST: Announcements/Create
@@ -68,10 +68,12 @@ namespace MyOSBB.Controllers
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.Announcements.Get().Add(announcement);
-                await _unitOfWork.SaveChangesAsync();
+                _context.Add(announcement);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", announcement.UserId);
+            ViewData["UserId"] = announcement.UserId;
             return View(announcement);
         }
 
@@ -83,11 +85,13 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var announcement = await _unitOfWork.Announcements.Get().SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _context.Announcements.SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
             {
                 return NotFound();
             }
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", announcement.UserId);
+            ViewData["UserId"] = announcement.UserId;
             return View(announcement);
         }
 
@@ -105,14 +109,26 @@ namespace MyOSBB.Controllers
 
             if (ModelState.IsValid)
             {
-                var ann = await _unitOfWork.Announcements.Get().SingleOrDefaultAsync(m => m.Id == id);
-                ann.Title = announcement.Title;
-                ann.Content = announcement.Content;
-                ann.Date = announcement.Date;
-                _unitOfWork.Announcements.Update(ann);
-                await _unitOfWork.SaveChangesAsync();
+                try
+                {
+                    _context.Update(announcement);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!AnnouncementExists(announcement.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", announcement.UserId);
+            ViewData["UserId"] = announcement.UserId;
             return View(announcement);
         }
 
@@ -124,7 +140,9 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var announcement = await _unitOfWork.Announcements.Get().SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _context.Announcements
+                .Include(a => a.User)
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
             {
                 return NotFound();
@@ -138,14 +156,15 @@ namespace MyOSBB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            _unitOfWork.Announcements.Delete(id);
-            await _unitOfWork.SaveChangesAsync();
+            var announcement = await _context.Announcements.SingleOrDefaultAsync(m => m.Id == id);
+            _context.Announcements.Remove(announcement);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AnnouncementExists(int id)
         {
-            return _unitOfWork.Announcements.Get().Any(e => e.Id == id);
+            return _context.Announcements.Any(e => e.Id == id);
         }
     }
 }

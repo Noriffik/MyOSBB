@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,9 +10,10 @@ using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
 {
+    [Authorize(Roles = "Users")]
     public class ContributionsController : Controller
-    {
-        private readonly UserManager<ApplicationUser> _userManager;
+    {        
+        private UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
 
         public ContributionsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
@@ -25,7 +25,8 @@ namespace MyOSBB.Controllers
         // GET: Contributions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Contributions.ToListAsync());
+            var applicationDbContext = _context.Contributions.Include(c => c.Month).Include(c => c.User);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Contributions/Details/5
@@ -37,6 +38,8 @@ namespace MyOSBB.Controllers
             }
 
             var contribution = await _context.Contributions
+                .Include(c => c.Month)
+                .Include(c => c.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
@@ -49,6 +52,11 @@ namespace MyOSBB.Controllers
         // GET: Contributions/Create
         public IActionResult Create()
         {
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name");
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+
+            var user = _userManager.GetUserAsync(User).Result;
+            ViewData["UserId"] = _context.Users.Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
             return View();
         }
 
@@ -57,16 +65,17 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FlatNumber,UserId,Payment,PaymentDate,ForPeriod")] Contribution contribution)
+        public async Task<IActionResult> Create([Bind("Id,Payment,PaymentDate,UserId,MonthId")] Contribution contribution)
         {
-            var user = await _userManager.GetUserAsync(User);
-            contribution.UserId = user.Id;
             if (ModelState.IsValid)
             {
                 _context.Add(contribution);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", contribution.MonthId);
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
+            ViewData["UserId"] = contribution.UserId;
             return View(contribution);
         }
 
@@ -83,6 +92,9 @@ namespace MyOSBB.Controllers
             {
                 return NotFound();
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", contribution.MonthId);
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
+            ViewData["UserId"] = contribution.UserId;
             return View(contribution);
         }
 
@@ -91,7 +103,7 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FlatNumber,UserId,Payment,PaymentDate,ForPeriod")] Contribution contribution)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Payment,PaymentDate,UserId,MonthId")] Contribution contribution)
         {
             if (id != contribution.Id)
             {
@@ -118,6 +130,9 @@ namespace MyOSBB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", contribution.MonthId);
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
+            ViewData["UserId"] = contribution.UserId;
             return View(contribution);
         }
 
@@ -130,6 +145,8 @@ namespace MyOSBB.Controllers
             }
 
             var contribution = await _context.Contributions
+                .Include(c => c.Month)
+                .Include(c => c.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {

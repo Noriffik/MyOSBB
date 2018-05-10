@@ -12,9 +12,9 @@ namespace MyOSBB.DAL.Models
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime Date { get; set; }
+
         [Display(Name = "User Id")]
         public string UserId { get; set; }
-
         public ApplicationUser User { get; set; }
     }
 }

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
+<div class="bg-primary text-white"><h4>Invoice gaz</h4></div>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -13,12 +13,6 @@
     <thead>
         <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.UserId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.FlatNumber)
-                </th>
-                <th>
                     @Html.DisplayNameFor(model => model.InvoiceDate)
                 </th>
                 <th>
@@ -26,9 +20,6 @@
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Payment)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ForPeriod)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Debt)
@@ -42,18 +33,18 @@
                 <th>
                     @Html.DisplayNameFor(model => model.CurrentNumber)
                 </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Month)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User.UserName)
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FlatNumber)
-            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.InvoiceDate)
             </td>
@@ -62,9 +53,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Payment)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ForPeriod)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Debt)
@@ -77,6 +65,12 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CurrentNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Month.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.Id)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

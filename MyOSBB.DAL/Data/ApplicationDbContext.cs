@@ -85,5 +85,6 @@ namespace MyOSBB.DAL.Data
         public DbSet<InvoiceService> InvoiceServices { get; set; }
         public DbSet<InvoiceTel> InvoiceTels { get; set; }
         public DbSet<InvoiceWater> InvoiceWaters { get; set; }
+        public DbSet<Month> Months { get; set; }
     }
 }

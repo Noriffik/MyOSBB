@@ -11,18 +11,6 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.UserId)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.UserId)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.FlatNumber)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.FlatNumber)
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.InvoiceDate)
         </dt>
         <dd>
@@ -41,12 +29,6 @@
             @Html.DisplayFor(model => model.Payment)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ForPeriod)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.ForPeriod)
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.Debt)
         </dt>
         <dd>
@@ -63,6 +45,18 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.TelNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Month)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Month.Id)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.User)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.UserName)
         </dd>
     </dl>
 </div>

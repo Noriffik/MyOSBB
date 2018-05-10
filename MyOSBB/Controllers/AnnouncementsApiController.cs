@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
@@ -15,14 +14,10 @@ namespace MyOSBB.Controllers
     [Route("api/AnnouncementsApi")]
     public class AnnouncementsApiController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
-        public AnnouncementsApiController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
+        public AnnouncementsApiController(ApplicationDbContext context)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _context = context;
         }
 
@@ -30,14 +25,7 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<Announcement> GetAnnouncements()
         {
-            //System.Security.Claims.ClaimsPrincipal currentUser = this.User;
-            if(_signInManager.IsSignedIn(User))
-            {
-                var user = _userManager.FindByNameAsync(User.Identity.Name);
-                var result = _context.Announcements.Where(r => r.UserId == user.Result.Id).ToList();
-                return result;
-            }
-            return new List<Announcement>();
+            return _context.Announcements;
         }
 
         // GET: api/AnnouncementsApi/5

@@ -57,6 +57,8 @@ namespace MyOSBB
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
+            services.AddSingleton(Configuration);
+
             services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             services.AddMvc();
@@ -86,9 +88,6 @@ namespace MyOSBB
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            // Comment before Add-Migration and Update-Database
-            //ApplicationDbContext.CreateAdminAccount(app.ApplicationServices, Configuration).Wait();
         }
     }
 }

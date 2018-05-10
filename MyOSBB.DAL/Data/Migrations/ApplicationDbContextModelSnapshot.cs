@@ -143,6 +143,8 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Announcements");
                 });
 
@@ -208,9 +210,7 @@ namespace MyOSBB.DAL.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("FlatNumber");
-
-                    b.Property<string>("ForPeriod");
+                    b.Property<int>("MonthId");
 
                     b.Property<string>("Payment");
 
@@ -219,6 +219,10 @@ namespace MyOSBB.DAL.Data.Migrations
                     b.Property<string>("UserId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MonthId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Contributions");
                 });
@@ -232,11 +236,9 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.Property<string>("Debt");
 
-                    b.Property<string>("FlatNumber");
-
-                    b.Property<string>("ForPeriod");
-
                     b.Property<DateTime>("InvoiceDate");
+
+                    b.Property<int>("MonthId");
 
                     b.Property<string>("Overpaid");
 
@@ -249,6 +251,10 @@ namespace MyOSBB.DAL.Data.Migrations
                     b.Property<string>("UserId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MonthId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("InvoiceElectros");
                 });
@@ -262,11 +268,9 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.Property<string>("Debt");
 
-                    b.Property<string>("FlatNumber");
-
-                    b.Property<string>("ForPeriod");
-
                     b.Property<DateTime>("InvoiceDate");
+
+                    b.Property<int>("MonthId");
 
                     b.Property<string>("Overpaid");
 
@@ -280,6 +284,10 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MonthId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("InvoiceGazs");
                 });
 
@@ -290,11 +298,9 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.Property<string>("Debt");
 
-                    b.Property<string>("FlatNumber");
-
-                    b.Property<string>("ForPeriod");
-
                     b.Property<DateTime>("InvoiceDate");
+
+                    b.Property<int>("MonthId");
 
                     b.Property<string>("Overpaid");
 
@@ -306,6 +312,10 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MonthId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("InvoiceServices");
                 });
 
@@ -316,11 +326,9 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.Property<string>("Debt");
 
-                    b.Property<string>("FlatNumber");
-
-                    b.Property<string>("ForPeriod");
-
                     b.Property<DateTime>("InvoiceDate");
+
+                    b.Property<int>("MonthId");
 
                     b.Property<string>("Overpaid");
 
@@ -334,6 +342,10 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MonthId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("InvoiceTels");
                 });
 
@@ -344,11 +356,9 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.Property<string>("Debt");
 
-                    b.Property<string>("FlatNumber");
-
-                    b.Property<string>("ForPeriod");
-
                     b.Property<DateTime>("InvoiceDate");
+
+                    b.Property<int>("MonthId");
 
                     b.Property<string>("Overpaid");
 
@@ -360,7 +370,23 @@ namespace MyOSBB.DAL.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MonthId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("InvoiceWaters");
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Month", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Months");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -406,6 +432,85 @@ namespace MyOSBB.DAL.Data.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Announcement", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Contribution", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.Month", "Month")
+                        .WithMany()
+                        .HasForeignKey("MonthId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Invoices.InvoiceElectro", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.Month", "Month")
+                        .WithMany()
+                        .HasForeignKey("MonthId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Invoices.InvoiceGaz", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.Month", "Month")
+                        .WithMany()
+                        .HasForeignKey("MonthId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Invoices.InvoiceService", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.Month", "Month")
+                        .WithMany()
+                        .HasForeignKey("MonthId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Invoices.InvoiceTel", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.Month", "Month")
+                        .WithMany()
+                        .HasForeignKey("MonthId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("MyOSBB.DAL.Models.Invoices.InvoiceWater", b =>
+                {
+                    b.HasOne("MyOSBB.DAL.Models.Month", "Month")
+                        .WithMany()
+                        .HasForeignKey("MonthId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyOSBB.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618
         }

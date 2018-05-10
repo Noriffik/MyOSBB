@@ -2,27 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 
 namespace MyOSBB.Controllers
 {
+    [Authorize(Roles = "Users")]
     public class InvoiceGazsController : Controller
     {
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
 
-        public InvoiceGazsController(ApplicationDbContext context)
+        public InvoiceGazsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
+            _userManager = userManager;
             _context = context;
         }
 
         // GET: InvoiceGazs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.InvoiceGazs.ToListAsync());
+            var applicationDbContext = _context.InvoiceGazs.Include(i => i.Month).Include(i => i.User);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: InvoiceGazs/Details/5
@@ -34,6 +41,8 @@ namespace MyOSBB.Controllers
             }
 
             var invoiceGaz = await _context.InvoiceGazs
+                .Include(i => i.Month)
+                .Include(i => i.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (invoiceGaz == null)
             {
@@ -46,6 +55,10 @@ namespace MyOSBB.Controllers
         // GET: InvoiceGazs/Create
         public IActionResult Create()
         {
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name");
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+            var user = _userManager.GetUserAsync(User).Result;
+            ViewData["UserId"] = _context.Users.Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
             return View();
         }
 
@@ -54,7 +67,7 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,FlatNumber,InvoiceDate,ProviderName,Payment,ForPeriod,Debt,Overpaid,PrevNumber,CurrentNumber")] InvoiceGaz invoiceGaz)
+        public async Task<IActionResult> Create([Bind("Id,InvoiceDate,ProviderName,Payment,Debt,Overpaid,PrevNumber,CurrentNumber,UserId,MonthId")] InvoiceGaz invoiceGaz)
         {
             if (ModelState.IsValid)
             {
@@ -62,6 +75,9 @@ namespace MyOSBB.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceGaz.MonthId);
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", invoiceGaz.UserId);
+            ViewData["UserId"] = invoiceGaz.UserId;
             return View(invoiceGaz);
         }
 
@@ -78,6 +94,9 @@ namespace MyOSBB.Controllers
             {
                 return NotFound();
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceGaz.MonthId);
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", invoiceGaz.UserId);
+            ViewData["UserId"] = invoiceGaz.UserId;
             return View(invoiceGaz);
         }
 
@@ -86,7 +105,7 @@ namespace MyOSBB.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,FlatNumber,InvoiceDate,ProviderName,Payment,ForPeriod,Debt,Overpaid,PrevNumber,CurrentNumber")] InvoiceGaz invoiceGaz)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,InvoiceDate,ProviderName,Payment,Debt,Overpaid,PrevNumber,CurrentNumber,UserId,MonthId")] InvoiceGaz invoiceGaz)
         {
             if (id != invoiceGaz.Id)
             {
@@ -113,6 +132,9 @@ namespace MyOSBB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceGaz.MonthId);
+            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", invoiceGaz.UserId);
+            ViewData["UserId"] = invoiceGaz.UserId;
             return View(invoiceGaz);
         }
 
@@ -125,6 +147,8 @@ namespace MyOSBB.Controllers
             }
 
             var invoiceGaz = await _context.InvoiceGazs
+                .Include(i => i.Month)
+                .Include(i => i.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (invoiceGaz == null)
             {
