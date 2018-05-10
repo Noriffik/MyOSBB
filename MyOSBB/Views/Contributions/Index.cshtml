@@ -1,10 +1,10 @@
-﻿@model IEnumerable<Contribution>
+﻿@model IEnumerable<MyOSBB.DAL.Models.Contribution>
 
 @{
-    ViewData["Title"] = "Contributions index";
+    ViewData["Title"] = "Index";
 }
 
-<h2>Contributions</h2>
+<h2>Index</h2>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -12,18 +12,21 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FlatNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Payment)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PaymentDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ForPeriod)
-            </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FlatNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UserId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Payment)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PaymentDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ForPeriod)
+                </th>
             <th></th>
         </tr>
     </thead>
@@ -34,10 +37,13 @@
                 @Html.DisplayFor(modelItem => item.FlatNumber)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.UserId)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Payment)
             </td>
             <td>
-                @item.PaymentDate.ToShortDateString()
+                @Html.DisplayFor(modelItem => item.PaymentDate)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ForPeriod)

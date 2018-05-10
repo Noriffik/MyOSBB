@@ -2,98 +2,96 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
 using MyOSBB.DAL.Models;
+using MyOSBB.DAL.Models.AccountViewModels;
 
 namespace MyOSBB.Controllers
 {
-    public class ContributionsController : Controller
+    [Authorize(Roles = "Admins")]
+    public class ApplicationUsersController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
 
-        public ContributionsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        public ApplicationUsersController(ApplicationDbContext context)
         {
-            _userManager = userManager;
             _context = context;
         }
 
-        // GET: Contributions
+        // GET: ApplicationUsers
         public async Task<IActionResult> Index()
-        {
-            return View(await _context.Contributions.ToListAsync());
+        {            
+            return View(await _context.Users.ToListAsync());
         }
 
-        // GET: Contributions/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: ApplicationUsers/Details/5
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions
+            var applicationUser = await _context.Users
                 .SingleOrDefaultAsync(m => m.Id == id);
-            if (contribution == null)
+            if (applicationUser == null)
             {
                 return NotFound();
             }
 
-            return View(contribution);
+            return View(applicationUser);
         }
 
-        // GET: Contributions/Create
+        // GET: ApplicationUsers/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Contributions/Create
+        // POST: ApplicationUsers/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FlatNumber,UserId,Payment,PaymentDate,ForPeriod")] Contribution contribution)
+        public async Task<IActionResult> Create([Bind("FirstName,LastName,FlatNumber,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] ApplicationUser applicationUser)
         {
-            var user = await _userManager.GetUserAsync(User);
-            contribution.UserId = user.Id;
             if (ModelState.IsValid)
             {
-                _context.Add(contribution);
+                _context.Add(applicationUser);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(contribution);
+            return View(applicationUser);
         }
 
-        // GET: Contributions/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: ApplicationUsers/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
-            if (contribution == null)
+            var applicationUser = await _context.Users.SingleOrDefaultAsync(m => m.Id == id);
+            if (applicationUser == null)
             {
                 return NotFound();
             }
-            return View(contribution);
+            return View(applicationUser);
         }
 
-        // POST: Contributions/Edit/5
+        // POST: ApplicationUsers/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FlatNumber,UserId,Payment,PaymentDate,ForPeriod")] Contribution contribution)
+        public async Task<IActionResult> Edit(string id, [Bind("FirstName,LastName,FlatNumber,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] ApplicationUser applicationUser)
         {
-            if (id != contribution.Id)
+            if (id != applicationUser.Id)
             {
                 return NotFound();
             }
@@ -102,12 +100,12 @@ namespace MyOSBB.Controllers
             {
                 try
                 {
-                    _context.Update(contribution);
+                    _context.Update(applicationUser);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ContributionExists(contribution.Id))
+                    if (!ApplicationUserExists(applicationUser.Id))
                     {
                         return NotFound();
                     }
@@ -118,41 +116,41 @@ namespace MyOSBB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(contribution);
+            return View(applicationUser);
         }
 
-        // GET: Contributions/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: ApplicationUsers/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions
+            var applicationUser = await _context.Users
                 .SingleOrDefaultAsync(m => m.Id == id);
-            if (contribution == null)
+            if (applicationUser == null)
             {
                 return NotFound();
             }
 
-            return View(contribution);
+            return View(applicationUser);
         }
 
-        // POST: Contributions/Delete/5
+        // POST: ApplicationUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Contributions.Remove(contribution);
+            var applicationUser = await _context.Users.SingleOrDefaultAsync(m => m.Id == id);
+            _context.Users.Remove(applicationUser);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ContributionExists(int id)
+        private bool ApplicationUserExists(string id)
         {
-            return _context.Contributions.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

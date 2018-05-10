@@ -17,5 +17,7 @@ namespace MyOSBB.DAL.Models.Invoices
         public string Overpaid { get; set; }
 
         public string TelNumber { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }

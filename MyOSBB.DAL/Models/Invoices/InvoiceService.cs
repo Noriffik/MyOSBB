@@ -15,5 +15,7 @@ namespace MyOSBB.DAL.Models.Invoices
         public string ForPeriod { get; set; }
         public string Debt { get; set; }
         public string Overpaid { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }

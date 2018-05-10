@@ -14,5 +14,7 @@ namespace MyOSBB.DAL.Models
         public DateTime Date { get; set; }
         [Display(Name = "User Id")]
         public string UserId { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }

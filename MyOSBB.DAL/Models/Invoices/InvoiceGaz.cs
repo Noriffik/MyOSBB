@@ -18,5 +18,7 @@ namespace MyOSBB.DAL.Models.Invoices
 
         public string PrevNumber { get; set; }
         public string CurrentNumber { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }

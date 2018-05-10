@@ -1,4 +1,4 @@
-﻿@model Contribution
+﻿@model MyOSBB.DAL.Models.Contribution
 
 @{
     ViewData["Title"] = "Details";
@@ -17,6 +17,12 @@
             @Html.DisplayFor(model => model.FlatNumber)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Payment)
         </dt>
         <dd>
@@ -26,7 +32,7 @@
             @Html.DisplayNameFor(model => model.PaymentDate)
         </dt>
         <dd>
-            @Model.PaymentDate.ToShortDateString()
+            @Html.DisplayFor(model => model.PaymentDate)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.ForPeriod)

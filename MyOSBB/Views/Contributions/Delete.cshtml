@@ -1,4 +1,4 @@
-﻿@model Contribution
+﻿@model MyOSBB.DAL.Models.Contribution
 
 @{
     ViewData["Title"] = "Delete";
@@ -16,6 +16,12 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.FlatNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Payment)
