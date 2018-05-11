@@ -25,7 +25,8 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<InvoiceTel> GetInvoiceTels()
         {
-            return _context.InvoiceTels;
+            var result = _context.InvoiceTels.Include(r => r.Month).Include(r => r.User).ToList();
+            return result;
         }
 
         // GET: api/InvoiceTelsApi/5

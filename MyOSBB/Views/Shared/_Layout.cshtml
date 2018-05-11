@@ -37,16 +37,13 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="About">About OSBB</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact OSBB</a></li>
                     @if (SignInManager.IsSignedIn(User))
-    {
+                    {
                 <li><a asp-area="" asp-controller="Manage" asp-action="Index">Manage account</a></li>
+                        if (User.IsInRole("Users"))
+                        {
                 <li><a asp-area="" asp-controller="Announcements" asp-action="Index">Announcements</a></li>
                 <li><a asp-area="" asp-controller="Contributions" asp-action="Index">Contributions</a></li>
                 <li><a asp-area="" asp-controller="UserData" asp-action="Index">User data</a></li>
-if (User.IsInRole("Admins"))
-{
-                <li><a asp-area="" asp-controller="Admin" asp-action="Index">Admin</a></li>
-                <li><a asp-area="" asp-controller="ApplicationUsers" asp-action="Index">Users</a></li>
-                <li><a asp-area="" asp-controller="RoleAdmin" asp-action="Index">Role Admin</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Invoices <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -57,8 +54,14 @@ if (User.IsInRole("Admins"))
                         <li><a asp-area="" asp-controller="InvoiceWaters" asp-action="Index">Invoices for water</a></li>
                     </ul>
                 </li>
-}
-}
+                        }
+                        if (User.IsInRole("Admins"))
+                        {
+                <li><a asp-area="" asp-controller="Admin" asp-action="Index">Admin</a></li>
+                <li><a asp-area="" asp-controller="ApplicationUsers" asp-action="Index">Users</a></li>
+                <li><a asp-area="" asp-controller="RoleAdmin" asp-action="Index">Roles</a></li>
+                        }
+                    }
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>
@@ -90,7 +93,6 @@ if (User.IsInRole("Admins"))
                 crossorigin="anonymous"
                 integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
         </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
 
     @RenderSection("Scripts", required: false)

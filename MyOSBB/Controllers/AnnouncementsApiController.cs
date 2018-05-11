@@ -25,7 +25,9 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<Announcement> GetAnnouncements()
         {
-            return _context.Announcements;
+            var result = _context.Announcements.Include(r => r.User).ToList();
+            //return _context.Announcements;
+            return result;
         }
 
         // GET: api/AnnouncementsApi/5

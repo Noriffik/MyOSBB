@@ -69,13 +69,6 @@ namespace MyOSBB.DAL.Data
                     await userManager.AddToRoleAsync(user, role);
                 }
             }
-            //else
-            //{
-            //    admin.UserName = username;
-            //    admin.Email = email;
-            //    admin.EmailConfirmed = emailConfirmed;
-            //    await userManager.UpdateAsync(admin);
-            //}
         }
 
         public DbSet<Announcement> Announcements { get; set; }

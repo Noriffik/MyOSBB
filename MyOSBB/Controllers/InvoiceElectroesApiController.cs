@@ -25,7 +25,8 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<InvoiceElectro> GetInvoiceElectros()
         {
-            return _context.InvoiceElectros;
+            var result = _context.InvoiceElectros.Include(r => r.Month).Include(r => r.User).ToList();
+            return result;
         }
 
         // GET: api/InvoiceElectroesApi/5

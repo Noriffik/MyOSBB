@@ -25,7 +25,8 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<InvoiceWater> GetInvoiceWaters()
         {
-            return _context.InvoiceWaters;
+            var result = _context.InvoiceWaters.Include(r => r.Month).Include(r => r.User).ToList();
+            return result;
         }
 
         // GET: api/InvoiceWatersApi/5

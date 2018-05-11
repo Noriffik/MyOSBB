@@ -25,7 +25,8 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<InvoiceGaz> GetInvoiceGazs()
         {
-            return _context.InvoiceGazs;
+            var result = _context.InvoiceGazs.Include(r => r.Month).Include(r => r.User).ToList();
+            return result;
         }
 
         // GET: api/InvoiceGazsApi/5

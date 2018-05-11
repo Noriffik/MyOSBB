@@ -49,7 +49,7 @@ namespace MyOSBB
                     opts.Password.RequireLowercase = true;
                     opts.Password.RequireUppercase = true;
                     opts.Password.RequireDigit = true;
-                    opts.SignIn.RequireConfirmedEmail = true;
+                    opts.SignIn.RequireConfirmedEmail = false;
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();

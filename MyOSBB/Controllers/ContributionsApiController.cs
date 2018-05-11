@@ -25,7 +25,8 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<Contribution> GetContributions()
         {
-            return _context.Contributions;
+            var result = _context.Contributions.Include(r => r.Month).Include(r => r.User).ToList();
+            return result;
         }
 
         // GET: api/ContributionsApi/5
