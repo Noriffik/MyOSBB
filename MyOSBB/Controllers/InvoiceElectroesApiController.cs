@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 
 namespace MyOSBB.Controllers
@@ -14,10 +16,12 @@ namespace MyOSBB.Controllers
     [Route("api/InvoiceElectroesApi")]
     public class InvoiceElectroesApiController : Controller
     {
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
-        public InvoiceElectroesApiController(ApplicationDbContext context)
+        public InvoiceElectroesApiController(SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
         {
+            _signInManager = signInManager;
             _context = context;
         }
 
@@ -26,6 +30,23 @@ namespace MyOSBB.Controllers
         public IEnumerable<InvoiceElectro> GetInvoiceElectros()
         {
             var result = _context.InvoiceElectros.Include(r => r.Month).Include(r => r.User).ToList();
+            return result;
+        }
+
+        [HttpPost]
+        public IEnumerable<InvoiceElectroApi> PostInvoiceElectros(string userName, string password)
+        {
+            IList<InvoiceElectroApi> result = new List<InvoiceElectroApi>();
+            var user = _context.Users.Where(r => r.UserName == userName).FirstOrDefault();
+            if (user != null)
+            {
+                var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
+                if (pass.Succeeded)
+                {
+                    var data = _context.InvoiceElectros.Include(r => r.User).Include(r => r.Month).ToList();
+                    result = data.Select(r => new InvoiceElectroApi() { Id = r.Id, InvoiceDate = r.InvoiceDate, ProviderName = r.ProviderName, Payment = r.Payment, Debt = r.Debt, Overpaid = r.Overpaid, PrevNumber = r.PrevNumber, CurrentNumber = r.CurrentNumber, MonthName = r.Month.Name, FlatNumber = r.User.FlatNumber }).ToList();
+                }
+            }
             return result;
         }
 
@@ -84,19 +105,19 @@ namespace MyOSBB.Controllers
         }
 
         // POST: api/InvoiceElectroesApi
-        [HttpPost]
-        public async Task<IActionResult> PostInvoiceElectro([FromBody] InvoiceElectro invoiceElectro)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> PostInvoiceElectro([FromBody] InvoiceElectro invoiceElectro)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            _context.InvoiceElectros.Add(invoiceElectro);
-            await _context.SaveChangesAsync();
+        //    _context.InvoiceElectros.Add(invoiceElectro);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetInvoiceElectro", new { id = invoiceElectro.Id }, invoiceElectro);
-        }
+        //    return CreatedAtAction("GetInvoiceElectro", new { id = invoiceElectro.Id }, invoiceElectro);
+        //}
 
         // DELETE: api/InvoiceElectroesApi/5
         [HttpDelete("{id}")]

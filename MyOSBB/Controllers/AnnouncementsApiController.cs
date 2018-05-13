@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
@@ -14,10 +15,16 @@ namespace MyOSBB.Controllers
     [Route("api/AnnouncementsApi")]
     public class AnnouncementsApiController : Controller
     {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private IPasswordHasher<ApplicationUser> _passwordHasher;
         private readonly ApplicationDbContext _context;
 
-        public AnnouncementsApiController(ApplicationDbContext context)
+        public AnnouncementsApiController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IPasswordHasher<ApplicationUser> passwordHash, ApplicationDbContext context)
         {
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _passwordHasher = passwordHash;
             _context = context;
         }
 
@@ -27,6 +34,24 @@ namespace MyOSBB.Controllers
         {
             var result = _context.Announcements.Include(r => r.User).ToList();
             //return _context.Announcements;
+            return result;
+        }
+
+        // POST: api/AnnouncementsApi
+        [HttpPost]
+        public IEnumerable<AnnouncementApi> PostAnnouncements(string userName, string password)
+        {
+            IList<AnnouncementApi> result = new List<AnnouncementApi>();
+            var user = _context.Users.Where(r => r.UserName == userName).FirstOrDefault();
+            if (user != null)
+            {
+                var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
+                if (pass.Succeeded)
+                {
+                    var data = _context.Announcements.Include(r => r.User).ToList();
+                    result = data.Select(r => new AnnouncementApi() { Id = r.Id, Title = r.Title, Date = r.Date, Content = r.Content, UserName = r.User.UserName }).ToList();
+                }
+            }
             return result;
         }
 
@@ -85,19 +110,19 @@ namespace MyOSBB.Controllers
         }
 
         // POST: api/AnnouncementsApi
-        [HttpPost]
-        public async Task<IActionResult> PostAnnouncement([FromBody] Announcement announcement)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> PostAnnouncement([FromBody] Announcement announcement)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            _context.Announcements.Add(announcement);
-            await _context.SaveChangesAsync();
+        //    _context.Announcements.Add(announcement);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAnnouncement", new { id = announcement.Id }, announcement);
-        }
+        //    return CreatedAtAction("GetAnnouncement", new { id = announcement.Id }, announcement);
+        //}
 
         // DELETE: api/AnnouncementsApi/5
         [HttpDelete("{id}")]

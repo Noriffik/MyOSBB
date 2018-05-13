@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 
 namespace MyOSBB.Controllers
@@ -14,10 +16,12 @@ namespace MyOSBB.Controllers
     [Route("api/InvoiceTelsApi")]
     public class InvoiceTelsApiController : Controller
     {
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
-        public InvoiceTelsApiController(ApplicationDbContext context)
+        public InvoiceTelsApiController(SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
         {
+            _signInManager = signInManager;
             _context = context;
         }
 
@@ -26,6 +30,23 @@ namespace MyOSBB.Controllers
         public IEnumerable<InvoiceTel> GetInvoiceTels()
         {
             var result = _context.InvoiceTels.Include(r => r.Month).Include(r => r.User).ToList();
+            return result;
+        }
+
+        [HttpPost]
+        public IEnumerable<InvoiceTelApi> PostInvoiceTels(string userName, string password)
+        {
+            IList<InvoiceTelApi> result = new List<InvoiceTelApi>();
+            var user = _context.Users.Where(r => r.UserName == userName).FirstOrDefault();
+            if (user != null)
+            {
+                var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
+                if (pass.Succeeded)
+                {
+                    var data = _context.InvoiceTels.Include(r => r.User).Include(r => r.Month).ToList();
+                    result = data.Select(r => new InvoiceTelApi() { Id = r.Id, InvoiceDate = r.InvoiceDate, ProviderName = r.ProviderName, Payment = r.Payment, Debt = r.Debt, Overpaid = r.Overpaid, MonthName = r.Month.Name, FlatNumber = r.User.FlatNumber, TelNumber = r.TelNumber }).ToList();
+                }
+            }
             return result;
         }
 
@@ -84,19 +105,19 @@ namespace MyOSBB.Controllers
         }
 
         // POST: api/InvoiceTelsApi
-        [HttpPost]
-        public async Task<IActionResult> PostInvoiceTel([FromBody] InvoiceTel invoiceTel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> PostInvoiceTel([FromBody] InvoiceTel invoiceTel)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            _context.InvoiceTels.Add(invoiceTel);
-            await _context.SaveChangesAsync();
+        //    _context.InvoiceTels.Add(invoiceTel);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetInvoiceTel", new { id = invoiceTel.Id }, invoiceTel);
-        }
+        //    return CreatedAtAction("GetInvoiceTel", new { id = invoiceTel.Id }, invoiceTel);
+        //}
 
         // DELETE: api/InvoiceTelsApi/5
         [HttpDelete("{id}")]
