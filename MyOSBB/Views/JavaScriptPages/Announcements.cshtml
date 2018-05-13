@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Announcements</title>
+</head>
+<body>
+    <div class="bg-primary text-white"><h4>Announcements</h4></div><br />
+    <p>Filter:</p>
+    <input class="form-control" id="filterInput" type="text" placeholder="Search..">
+    <br>
+    <table id="userDataTable" class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th><input type="text" /></th>
+            </tr>
+            <tr>
+                <th onclick="sortTable(0)">Title <span id="userDataSpan0"></span></th>
+                <th onclick="sortTable(1)">Content <span id="userDataSpan1"></span></th>
+                <th onclick="sortTable(2)">Date <span id="userDataSpan2"></span></th>
+                <th onclick="sortTable(3)">UserId <span id="userDataSpan3"></span></th>
+            </tr>
+        </thead>
+        <tbody id="filterBody"></tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $('#userDataTable').DataTable();
+            $("#filterInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#filterBody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+</body>
+</html>

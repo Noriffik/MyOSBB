@@ -3,13 +3,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-using MyOSBB.Models;
+using Microsoft.Extensions.Configuration;
+using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
 {
     public class HomeController : Controller
     {
+        private IServiceProvider _serviceProvider;
+        private IConfiguration _configuration;
+        public HomeController(IServiceProvider serviceProvider, IConfiguration configuration)
+        {
+            _serviceProvider = serviceProvider;
+            _configuration = configuration;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -27,6 +38,12 @@ namespace MyOSBB.Controllers
             ViewData["Message"] = "Your contact page.";
 
             return View();
+        }
+
+        public IActionResult Admin()
+        {
+            ApplicationDbContext.CreateAdminAccount(_serviceProvider, _configuration).Wait();
+            return View("Index");
         }
 
         public IActionResult Error()

@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewData["Title"] = "UserData Index";
+}
+
+<h2>User data</h2>
+
+<table class="table">
+    <tr>
+        <td><input type="button" value="Announcements" class="btn btn-default" onclick="userData(0)" /></td>
+        <td><input type="button" value="Contributions" class="btn btn-default" onclick="userData(1)" /></td>
+        <td><input type="button" value="Invoice electro" class="btn btn-default" onclick="userData(2)" /></td>
+        <td><input type="button" value="Invoice gaz" class="btn btn-default" onclick="userData(3)" /></td>
+        <td><input type="button" value="Invoice services" class="btn btn-default" onclick="userData(4)" /></td>
+        <td><input type="button" value="Invoice tel" class="btn btn-default" onclick="userData(5)" /></td>
+        <td><input type="button" value="Invoice waters" class="btn btn-default" onclick="userData(6)" /></td>
+    </tr>
+</table>
+
+@*<br />
+    <p>Filter:</p>
+    <input class="form-control" id="filterInput" type="text" placeholder="Search..">
+    <br />*@
+
+@*<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">*@
+
+<div class="page-header">
+    @*<label class="heading">History</label>*@
+    <div class="bg-primary text-white"><h4></h4></div><br />
+    <div class="form-group">
+        <fieldset>
+            <form action="" class="form-group" method="post">
+                <div class="table-responsive">
+                    <div class="table-responsive">
+                        <table id="userDataTable" class="display table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+<script src="~/js/site.js"></script>

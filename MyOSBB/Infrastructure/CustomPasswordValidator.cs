@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using MyOSBB.Models;
+using MyOSBB.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

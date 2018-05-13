@@ -1,11 +1,14 @@
 ﻿@model IEnumerable<ApplicationUser>
+@{
+    ViewData["Title"] = "Admin index";
+}
 
-<div class="bg-primary m-1 p-1 text-white"><h4>User Accounts</h4></div>
+<div class="bg-primary text-white"><h4>User Accounts</h4></div>
 
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 
 <table class="table table-sm table-bordered">
-    <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+    <tr><th>ID</th><th>Name</th><th>Email</th><th>Email confirmed</th></tr>
     @if (Model.Count() == 0)
     {
         <tr><td colspan="3" class="text-center">No User Accounts</td></tr>
@@ -18,6 +21,7 @@
                 <td>@user.Id</td>
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
+                <td>@user.EmailConfirmed</td>
                 <td>
                     <form asp-action="Delete" asp-route-id="@user.Id" method="post">
                         <a class="btn btn-sm btn-primary" asp-action="Edit"

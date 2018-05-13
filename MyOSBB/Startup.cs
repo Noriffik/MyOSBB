@@ -8,10 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyOSBB.Data;
-using MyOSBB.Models;
+using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Models;
 using MyOSBB.Services;
 using MyOSBB.Infrastructure;
+using MyOSBB.DAL.Interfaces;
 
 namespace MyOSBB
 {
@@ -32,9 +33,12 @@ namespace MyOSBB
                 CustomPasswordValidator>();
             services.AddTransient<IUserValidator<ApplicationUser>,
                 CustomUserValidator>();
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+#if DEBUG
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("RealHostConnection")));
+#else
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("RealHostLocalConnection")));
+#endif
 
             services.AddIdentity<ApplicationUser, IdentityRole>(
                 opts => {
@@ -45,12 +49,17 @@ namespace MyOSBB
                     opts.Password.RequireLowercase = true;
                     opts.Password.RequireUppercase = true;
                     opts.Password.RequireDigit = true;
+                    opts.SignIn.RequireConfirmedEmail = false;
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+
+            services.AddSingleton(Configuration);
+
+            services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             services.AddMvc();
         }
@@ -79,9 +88,6 @@ namespace MyOSBB
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            // Comment before Add-Migration
-            ApplicationDbContext.CreateAdminAccount(app.ApplicationServices, Configuration).Wait();
         }
     }
 }
