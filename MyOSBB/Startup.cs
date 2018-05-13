@@ -57,7 +57,7 @@ namespace MyOSBB
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
-            services.AddSingleton(Configuration);
+            //services.AddSingleton(Configuration);
 
             services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
@@ -79,6 +79,13 @@ namespace MyOSBB
             }
 
             app.UseStaticFiles();
+#if !DEBUG
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                ServeUnknownFileTypes = true,
+                DefaultContentType = "application/x-msdownload"
+            });
+#endif
 
             app.UseAuthentication();
 
