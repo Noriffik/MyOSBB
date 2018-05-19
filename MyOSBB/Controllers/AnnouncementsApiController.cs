@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
@@ -17,22 +18,24 @@ namespace MyOSBB.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private IPasswordHasher<ApplicationUser> _passwordHasher;
-        private readonly ApplicationDbContext _context;
+        private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+        //private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AnnouncementsApiController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IPasswordHasher<ApplicationUser> passwordHash, ApplicationDbContext context)
+        public AnnouncementsApiController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IPasswordHasher<ApplicationUser> passwordHash, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _passwordHasher = passwordHash;
-            _context = context;
+            //_context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/AnnouncementsApi
         [HttpGet]
         public IEnumerable<Announcement> GetAnnouncements()
         {
-            var result = _context.Announcements.Include(r => r.User).ToList();
+            var result = _unitOfWork.Announcements.GetDb().Include(r => r.User).ToList();
             //return _context.Announcements;
             return result;
         }
@@ -42,13 +45,13 @@ namespace MyOSBB.Controllers
         public IEnumerable<AnnouncementApi> PostAnnouncements(string userName, string password)
         {
             IList<AnnouncementApi> result = new List<AnnouncementApi>();
-            var user = _context.Users.Where(r => r.UserName == userName).FirstOrDefault();
+            var user = _unitOfWork.Users.GetDb().Where(r => r.UserName == userName).FirstOrDefault();
             if (user != null)
             {
                 var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
                 if (pass.Succeeded)
                 {
-                    var data = _context.Announcements.Include(r => r.User).ToList();
+                    var data = _unitOfWork.Announcements.GetDb().Include(r => r.User).ToList();
                     result = data.Select(r => new AnnouncementApi() { Id = r.Id, Title = r.Title, Date = r.Date, Content = r.Content, UserName = r.User.UserName }).ToList();
                 }
             }
@@ -64,7 +67,7 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var announcement = await _context.Announcements.SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _unitOfWork.Announcements.GetDb().SingleOrDefaultAsync(m => m.Id == id);
 
             if (announcement == null)
             {
@@ -88,11 +91,11 @@ namespace MyOSBB.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(announcement).State = EntityState.Modified;
+            _unitOfWork.GetEntry(announcement).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -133,21 +136,21 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var announcement = await _context.Announcements.SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _unitOfWork.Announcements.GetDb().SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
             {
                 return NotFound();
             }
 
-            _context.Announcements.Remove(announcement);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Announcements.GetDb().Remove(announcement);
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(announcement);
         }
 
         private bool AnnouncementExists(int id)
         {
-            return _context.Announcements.Any(e => e.Id == id);
+            return _unitOfWork.Announcements.GetDb().Any(e => e.Id == id);
         }
     }
 }

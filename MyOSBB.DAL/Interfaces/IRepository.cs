@@ -8,7 +8,7 @@ namespace MyOSBB.DAL.Interfaces
     public interface IRepository<TEntity> where TEntity : class
     {
         IEnumerable<TEntity> GetAll();
-        DbSet<TEntity> Get();
+        DbSet<TEntity> GetDb();
         TEntity GetByID(object id);
         void Insert(TEntity entity);
         void Delete(object id);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MyOSBB.DAL.Data;
 using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Repositories;
@@ -11,15 +12,16 @@ namespace MyOSBB.DAL.Models
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ApplicationDbContext db;
+        ApplicationDbContext db;
         private Repository<ApplicationUser> usersRepository;
         private Repository<Announcement> announcementRepository;
         private Repository<Contribution> contributionRepository;
+        private Repository<Month> monthRepository;
 
         public UnitOfWork(ApplicationDbContext context)
         {
             db = context;
-        }
+        }        
 
         public IRepository<ApplicationUser> Users
         {
@@ -49,6 +51,26 @@ namespace MyOSBB.DAL.Models
                     contributionRepository = new Repository<Contribution>(db);
                 return contributionRepository;
             }
+        }
+
+        public IRepository<Month> Months
+        {
+            get
+            {
+                if (monthRepository == null)
+                    monthRepository = new Repository<Month>(db);
+                return monthRepository;
+            }
+        }
+
+        public EntityEntry<T> GetEntry<T>(T item) where T : class
+        {
+            return db.Entry(item);
+        }
+
+        public EntityEntry<T> Update<T>(T item) where T : class
+        {
+            return db.Update(item);
         }
 
         public void SaveChanges()

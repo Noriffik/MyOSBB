@@ -20,7 +20,7 @@ namespace MyOSBB.DAL.Repositories
             dbSet = context.Set<TEntity>();
         }
 
-        public DbSet<TEntity> Get()
+        public DbSet<TEntity> GetDb()
         {
             return dbSet;
         }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
@@ -16,19 +17,21 @@ namespace MyOSBB.Controllers
     public class ContributionsApiController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ContributionsApiController(SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
+        public ContributionsApiController(SignInManager<ApplicationUser> signInManager, IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
-            _context = context;
+            //_context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/ContributionsApi
         [HttpGet]
         public IEnumerable<Contribution> GetContributions()
         {
-            var result = _context.Contributions.Include(r => r.Month).Include(r => r.User).ToList();
+            var result = _unitOfWork.Contributions.GetDb().Include(r => r.Month).Include(r => r.User).ToList();
             return result;
         }
 
@@ -36,13 +39,13 @@ namespace MyOSBB.Controllers
         public IEnumerable<ContributionApi> PostContributions(string userName, string password)
         {
             IList<ContributionApi> result = new List<ContributionApi>();
-            var user = _context.Users.Where(r => r.UserName == userName).FirstOrDefault();
+            var user = _unitOfWork.Users.GetDb().Where(r => r.UserName == userName).FirstOrDefault();
             if (user != null)
             {
                 var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
                 if (pass.Succeeded)
                 {
-                    var data = _context.Contributions.Include(r => r.User).Include(r => r.Month).ToList();
+                    var data = _unitOfWork.Contributions.GetDb().Include(r => r.User).Include(r => r.Month).ToList();
                     result = data.Select(r => new ContributionApi() { FlatNumber = r.User.FlatNumber, UserName = r.User.UserName, Payment = r.Payment, PaymentDate = r.PaymentDate, MonthName = r.Month.Name }).ToList();
                 }
             }
@@ -58,7 +61,7 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
+            var contribution = await _unitOfWork.Contributions.GetDb().SingleOrDefaultAsync(m => m.Id == id);
 
             if (contribution == null)
             {
@@ -82,11 +85,11 @@ namespace MyOSBB.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(contribution).State = EntityState.Modified;
+            _unitOfWork.GetEntry(contribution).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -127,21 +130,21 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
+            var contribution = await _unitOfWork.Contributions.GetDb().SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
                 return NotFound();
             }
 
-            _context.Contributions.Remove(contribution);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Contributions.GetDb().Remove(contribution);
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(contribution);
         }
 
         private bool ContributionExists(int id)
         {
-            return _context.Contributions.Any(e => e.Id == id);
+            return _unitOfWork.Contributions.GetDb().Any(e => e.Id == id);
         }
     }
 }
