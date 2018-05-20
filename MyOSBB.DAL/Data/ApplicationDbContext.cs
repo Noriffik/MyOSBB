@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MyOSBB.DAL.Data

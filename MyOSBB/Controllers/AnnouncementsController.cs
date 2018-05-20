@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MyOSBB.DAL.Data;
 using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 
@@ -72,7 +68,7 @@ namespace MyOSBB.Controllers
             if (ModelState.IsValid)
             {
                 //_unitOfWork.Announcements.GetDbSet().Add(announcement);
-                _unitOfWork.Announcements.Insert(announcement);
+                _unitOfWork.Add(announcement);
                 await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -114,7 +110,7 @@ namespace MyOSBB.Controllers
             {
                 try
                 {
-                    _unitOfWork.Announcements.Update(announcement);
+                    _unitOfWork.Update(announcement);
                     await _unitOfWork.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -160,7 +156,7 @@ namespace MyOSBB.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var announcement = await _unitOfWork.Announcements.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
-            _unitOfWork.Announcements.GetDbSet().Remove(announcement);
+            _unitOfWork.Remove(announcement);
             await _unitOfWork.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

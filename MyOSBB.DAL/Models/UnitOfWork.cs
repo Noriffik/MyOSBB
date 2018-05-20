@@ -1,12 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MyOSBB.DAL.Data;
 using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models.Invoices;
 using MyOSBB.DAL.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MyOSBB.DAL.Models
