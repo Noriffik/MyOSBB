@@ -91,7 +91,7 @@ namespace MyOSBB.Controllers
                 return BadRequest();
             }
 
-            _unitOfWork.GetEntry(announcement).State = EntityState.Modified;
+            _unitOfWork.Entry(announcement).State = EntityState.Modified;
 
             try
             {

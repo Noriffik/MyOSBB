@@ -17,13 +17,11 @@ namespace MyOSBB.Controllers
     public class ContributionsApiController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        //private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
 
         public ContributionsApiController(SignInManager<ApplicationUser> signInManager, IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
-            //_context = context;
             _unitOfWork = unitOfWork;
         }
 
@@ -85,7 +83,7 @@ namespace MyOSBB.Controllers
                 return BadRequest();
             }
 
-            _unitOfWork.GetEntry(contribution).State = EntityState.Modified;
+            _unitOfWork.Entry(contribution).State = EntityState.Modified;
 
             try
             {

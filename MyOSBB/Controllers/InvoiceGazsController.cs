@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 
@@ -17,18 +18,18 @@ namespace MyOSBB.Controllers
     public class InvoiceGazsController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceGazsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        public InvoiceGazsController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: InvoiceGazs
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.InvoiceGazs.Include(i => i.Month).Include(i => i.User);
+            var applicationDbContext = _unitOfWork.InvoiceGazs.GetDbSet().Include(i => i.Month).Include(i => i.User);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -40,7 +41,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var invoiceGaz = await _context.InvoiceGazs
+            var invoiceGaz = await _unitOfWork.InvoiceGazs.GetDbSet()
                 .Include(i => i.Month)
                 .Include(i => i.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -55,10 +56,10 @@ namespace MyOSBB.Controllers
         // GET: InvoiceGazs/Create
         public IActionResult Create()
         {
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name");
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name");
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             var user = _userManager.GetUserAsync(User).Result;
-            ViewData["UserId"] = _context.Users.Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
+            ViewData["UserId"] = _unitOfWork.Users.GetDbSet().Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
             return View();
         }
 
@@ -71,11 +72,11 @@ namespace MyOSBB.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(invoiceGaz);
-                await _context.SaveChangesAsync();
+                _unitOfWork.Add(invoiceGaz);
+                await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceGaz.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", invoiceGaz.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", invoiceGaz.UserId);
             ViewData["UserId"] = invoiceGaz.UserId;
             return View(invoiceGaz);
@@ -89,12 +90,12 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var invoiceGaz = await _context.InvoiceGazs.SingleOrDefaultAsync(m => m.Id == id);
+            var invoiceGaz = await _unitOfWork.InvoiceGazs.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
             if (invoiceGaz == null)
             {
                 return NotFound();
             }
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceGaz.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", invoiceGaz.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", invoiceGaz.UserId);
             ViewData["UserId"] = invoiceGaz.UserId;
             return View(invoiceGaz);
@@ -116,8 +117,8 @@ namespace MyOSBB.Controllers
             {
                 try
                 {
-                    _context.Update(invoiceGaz);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.Update(invoiceGaz);
+                    await _unitOfWork.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -132,7 +133,7 @@ namespace MyOSBB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", invoiceGaz.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", invoiceGaz.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", invoiceGaz.UserId);
             ViewData["UserId"] = invoiceGaz.UserId;
             return View(invoiceGaz);
@@ -146,7 +147,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var invoiceGaz = await _context.InvoiceGazs
+            var invoiceGaz = await _unitOfWork.InvoiceGazs.GetDbSet()
                 .Include(i => i.Month)
                 .Include(i => i.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -163,15 +164,15 @@ namespace MyOSBB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var invoiceGaz = await _context.InvoiceGazs.SingleOrDefaultAsync(m => m.Id == id);
-            _context.InvoiceGazs.Remove(invoiceGaz);
-            await _context.SaveChangesAsync();
+            var invoiceGaz = await _unitOfWork.InvoiceGazs.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
+            _unitOfWork.Remove(invoiceGaz);
+            await _unitOfWork.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool InvoiceGazExists(int id)
         {
-            return _context.InvoiceGazs.Any(e => e.Id == id);
+            return _unitOfWork.InvoiceGazs.GetDbSet().Any(e => e.Id == id);
         }
     }
 }

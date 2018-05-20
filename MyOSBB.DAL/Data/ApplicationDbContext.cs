@@ -73,7 +73,7 @@ namespace MyOSBB.DAL.Data
 
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<Contribution> Contributions { get; set; }
-        public DbSet<InvoiceElectro> InvoiceElectros { get; set; }
+        public DbSet<InvoiceElectro> InvoiceElectroes { get; set; }
         public DbSet<InvoiceGaz> InvoiceGazs { get; set; }
         public DbSet<InvoiceService> InvoiceServices { get; set; }
         public DbSet<InvoiceTel> InvoiceTels { get; set; }

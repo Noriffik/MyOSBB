@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MyOSBB.DAL.Data;
 using MyOSBB.DAL.Interfaces;
+using MyOSBB.DAL.Models.Invoices;
 using MyOSBB.DAL.Repositories;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,15 @@ namespace MyOSBB.DAL.Models
         private Repository<Announcement> announcementRepository;
         private Repository<Contribution> contributionRepository;
         private Repository<Month> monthRepository;
+        private Repository<InvoiceElectro> invoiceElectroRepository;
+        private Repository<InvoiceGaz> invoiceGazRepository;
 
         public UnitOfWork(ApplicationDbContext context)
         {
             db = context;
-        }        
+        }
+
+        #region Repositories
 
         public IRepository<ApplicationUser> Users
         {
@@ -63,14 +68,46 @@ namespace MyOSBB.DAL.Models
             }
         }
 
-        public EntityEntry<T> GetEntry<T>(T item) where T : class
+        public IRepository<InvoiceElectro> InvoiceElectroes
+        {
+            get
+            {
+                if (invoiceElectroRepository == null)
+                    invoiceElectroRepository = new Repository<InvoiceElectro>(db);
+                return invoiceElectroRepository;
+            }
+        }
+
+        public IRepository<InvoiceGaz> InvoiceGazs
+        {
+            get
+            {
+                if (invoiceGazRepository == null)
+                    invoiceGazRepository = new Repository<InvoiceGaz>(db);
+                return invoiceGazRepository;
+            }
+        }
+
+        #endregion
+
+        public EntityEntry<T> Entry<T>(T item) where T : class
         {
             return db.Entry(item);
+        }
+
+        public EntityEntry<T> Add<T>(T item) where T : class
+        {
+            return db.Add(item);
         }
 
         public EntityEntry<T> Update<T>(T item) where T : class
         {
             return db.Update(item);
+        }
+
+        public EntityEntry<T> Remove<T>(T item) where T : class
+        {
+            return db.Remove(item);
         }
 
         public void SaveChanges()
