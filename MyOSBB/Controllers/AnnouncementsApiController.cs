@@ -35,7 +35,7 @@ namespace MyOSBB.Controllers
         [HttpGet]
         public IEnumerable<Announcement> GetAnnouncements()
         {
-            var result = _unitOfWork.Announcements.GetDb().Include(r => r.User).ToList();
+            var result = _unitOfWork.Announcements.GetDbSet().Include(r => r.User).ToList();
             //return _context.Announcements;
             return result;
         }
@@ -45,13 +45,13 @@ namespace MyOSBB.Controllers
         public IEnumerable<AnnouncementApi> PostAnnouncements(string userName, string password)
         {
             IList<AnnouncementApi> result = new List<AnnouncementApi>();
-            var user = _unitOfWork.Users.GetDb().Where(r => r.UserName == userName).FirstOrDefault();
+            var user = _unitOfWork.Users.GetDbSet().Where(r => r.UserName == userName).FirstOrDefault();
             if (user != null)
             {
                 var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
                 if (pass.Succeeded)
                 {
-                    var data = _unitOfWork.Announcements.GetDb().Include(r => r.User).ToList();
+                    var data = _unitOfWork.Announcements.GetDbSet().Include(r => r.User).ToList();
                     result = data.Select(r => new AnnouncementApi() { Id = r.Id, Title = r.Title, Date = r.Date, Content = r.Content, UserName = r.User.UserName }).ToList();
                 }
             }
@@ -67,7 +67,7 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var announcement = await _unitOfWork.Announcements.GetDb().SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _unitOfWork.Announcements.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
 
             if (announcement == null)
             {
@@ -136,13 +136,13 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var announcement = await _unitOfWork.Announcements.GetDb().SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _unitOfWork.Announcements.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
             {
                 return NotFound();
             }
 
-            _unitOfWork.Announcements.GetDb().Remove(announcement);
+            _unitOfWork.Announcements.GetDbSet().Remove(announcement);
             await _unitOfWork.SaveChangesAsync();
 
             return Ok(announcement);
@@ -150,7 +150,7 @@ namespace MyOSBB.Controllers
 
         private bool AnnouncementExists(int id)
         {
-            return _unitOfWork.Announcements.GetDb().Any(e => e.Id == id);
+            return _unitOfWork.Announcements.GetDbSet().Any(e => e.Id == id);
         }
     }
 }

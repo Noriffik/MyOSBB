@@ -28,7 +28,7 @@ namespace MyOSBB.Controllers
         // GET: Contributions
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _unitOfWork.Contributions.GetDb().Include(c => c.Month).Include(c => c.User);
+            var applicationDbContext = _unitOfWork.Contributions.GetDbSet().Include(c => c.Month).Include(c => c.User);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -40,7 +40,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _unitOfWork.Contributions.GetDb()
+            var contribution = await _unitOfWork.Contributions.GetDbSet()
                 .Include(c => c.Month)
                 .Include(c => c.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -55,11 +55,11 @@ namespace MyOSBB.Controllers
         // GET: Contributions/Create
         public IActionResult Create()
         {
-            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDb(), "Id", "Name");
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name");
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
 
             var user = _userManager.GetUserAsync(User).Result;
-            ViewData["UserId"] = _unitOfWork.Users.GetDb().Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
+            ViewData["UserId"] = _unitOfWork.Users.GetDbSet().Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
             return View();
         }
 
@@ -72,11 +72,12 @@ namespace MyOSBB.Controllers
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.Contributions.GetDb().Add(contribution);
+                //_unitOfWork.Contributions.GetDbSet().Add(contribution);
+                _unitOfWork.Contributions.Insert(contribution);
                 await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDb(), "Id", "Name", contribution.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", contribution.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
             ViewData["UserId"] = contribution.UserId;
             return View(contribution);
@@ -90,12 +91,12 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _unitOfWork.Contributions.GetDb().SingleOrDefaultAsync(m => m.Id == id);
+            var contribution = await _unitOfWork.Contributions.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
                 return NotFound();
             }
-            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDb(), "Id", "Name", contribution.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", contribution.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
             ViewData["UserId"] = contribution.UserId;
             return View(contribution);
@@ -133,7 +134,7 @@ namespace MyOSBB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDb(), "Id", "Name", contribution.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", contribution.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
             ViewData["UserId"] = contribution.UserId;
             return View(contribution);
@@ -147,7 +148,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _unitOfWork.Contributions.GetDb()
+            var contribution = await _unitOfWork.Contributions.GetDbSet()
                 .Include(c => c.Month)
                 .Include(c => c.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -164,15 +165,15 @@ namespace MyOSBB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var contribution = await _unitOfWork.Contributions.GetDb().SingleOrDefaultAsync(m => m.Id == id);
-            _unitOfWork.Contributions.GetDb().Remove(contribution);
+            var contribution = await _unitOfWork.Contributions.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
+            _unitOfWork.Contributions.GetDbSet().Remove(contribution);
             await _unitOfWork.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ContributionExists(int id)
         {
-            return _unitOfWork.Contributions.GetDb().Any(e => e.Id == id);
+            return _unitOfWork.Contributions.GetDbSet().Any(e => e.Id == id);
         }
     }
 }
