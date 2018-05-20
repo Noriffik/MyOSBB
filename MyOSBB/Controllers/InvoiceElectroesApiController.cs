@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 
@@ -17,19 +15,19 @@ namespace MyOSBB.Controllers
     public class InvoiceElectroesApiController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceElectroesApiController(SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
+        public InvoiceElectroesApiController(SignInManager<ApplicationUser> signInManager, IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/InvoiceElectroesApi
         [HttpGet]
         public IEnumerable<InvoiceElectro> GetInvoiceElectros()
         {
-            var result = _context.InvoiceElectros.Include(r => r.Month).Include(r => r.User).ToList();
+            var result = _unitOfWork.InvoiceElectroes.GetDbSet().Include(r => r.Month).Include(r => r.User).ToList();
             return result;
         }
 
@@ -37,13 +35,13 @@ namespace MyOSBB.Controllers
         public IEnumerable<InvoiceElectroApi> PostInvoiceElectros(string userName, string password)
         {
             IList<InvoiceElectroApi> result = new List<InvoiceElectroApi>();
-            var user = _context.Users.Where(r => r.UserName == userName).FirstOrDefault();
+            var user = _unitOfWork.Users.GetDbSet().Where(r => r.UserName == userName).FirstOrDefault();
             if (user != null)
             {
                 var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
                 if (pass.Succeeded)
                 {
-                    var data = _context.InvoiceElectros.Include(r => r.User).Include(r => r.Month).ToList();
+                    var data = _unitOfWork.InvoiceElectroes.GetDbSet().Include(r => r.User).Include(r => r.Month).ToList();
                     result = data.Select(r => new InvoiceElectroApi() { Id = r.Id, InvoiceDate = r.InvoiceDate, ProviderName = r.ProviderName, Payment = r.Payment, Debt = r.Debt, Overpaid = r.Overpaid, PrevNumber = r.PrevNumber, CurrentNumber = r.CurrentNumber, MonthName = r.Month.Name, FlatNumber = r.User.FlatNumber }).ToList();
                 }
             }
@@ -59,7 +57,7 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var invoiceElectro = await _context.InvoiceElectros.SingleOrDefaultAsync(m => m.Id == id);
+            var invoiceElectro = await _unitOfWork.InvoiceElectroes.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
 
             if (invoiceElectro == null)
             {
@@ -83,11 +81,11 @@ namespace MyOSBB.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(invoiceElectro).State = EntityState.Modified;
+            _unitOfWork.Entry(invoiceElectro).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -128,21 +126,21 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var invoiceElectro = await _context.InvoiceElectros.SingleOrDefaultAsync(m => m.Id == id);
+            var invoiceElectro = await _unitOfWork.InvoiceElectroes.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
             if (invoiceElectro == null)
             {
                 return NotFound();
             }
 
-            _context.InvoiceElectros.Remove(invoiceElectro);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Remove(invoiceElectro);
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(invoiceElectro);
         }
 
         private bool InvoiceElectroExists(int id)
         {
-            return _context.InvoiceElectros.Any(e => e.Id == id);
+            return _unitOfWork.InvoiceElectroes.GetDbSet().Any(e => e.Id == id);
         }
     }
 }

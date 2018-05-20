@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
@@ -15,19 +12,21 @@ namespace MyOSBB.Controllers
     [Authorize(Roles = "Users")]
     public class AnnouncementsController : Controller
     {
-        private UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        //private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AnnouncementsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        public AnnouncementsController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork /*ApplicationDbContext context*/)
         {
             _userManager = userManager;
-            _context = context;
+            //_context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Announcements
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Announcements.Include(a => a.User);
+            var applicationDbContext = _unitOfWork.Announcements.GetDbSet().Include(a => a.User);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -39,7 +38,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var announcement = await _context.Announcements
+            var announcement = await _unitOfWork.Announcements.GetDbSet()
                 .Include(a => a.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
@@ -55,7 +54,7 @@ namespace MyOSBB.Controllers
         {
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             var user = _userManager.GetUserAsync(User).Result;
-            ViewData["UserId"] = _context.Users.Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
+            ViewData["UserId"] = _unitOfWork.Users.GetDbSet().Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
             return View();
         }
 
@@ -68,11 +67,11 @@ namespace MyOSBB.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(announcement);
-                await _context.SaveChangesAsync();
+                //_unitOfWork.Announcements.GetDbSet().Add(announcement);
+                _unitOfWork.Add(announcement);
+                await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", announcement.UserId);
             ViewData["UserId"] = announcement.UserId;
             return View(announcement);
         }
@@ -85,7 +84,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var announcement = await _context.Announcements.SingleOrDefaultAsync(m => m.Id == id);
+            var announcement = await _unitOfWork.Announcements.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
             {
                 return NotFound();
@@ -111,8 +110,8 @@ namespace MyOSBB.Controllers
             {
                 try
                 {
-                    _context.Update(announcement);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.Update(announcement);
+                    await _unitOfWork.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -140,7 +139,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var announcement = await _context.Announcements
+            var announcement = await _unitOfWork.Announcements.GetDbSet()
                 .Include(a => a.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (announcement == null)
@@ -156,15 +155,15 @@ namespace MyOSBB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var announcement = await _context.Announcements.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Announcements.Remove(announcement);
-            await _context.SaveChangesAsync();
+            var announcement = await _unitOfWork.Announcements.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
+            _unitOfWork.Remove(announcement);
+            await _unitOfWork.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AnnouncementExists(int id)
         {
-            return _context.Announcements.Any(e => e.Id == id);
+            return _unitOfWork.Announcements.GetDbSet().Any(e => e.Id == id);
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 
 namespace MyOSBB.Controllers
@@ -13,19 +14,21 @@ namespace MyOSBB.Controllers
     [Authorize(Roles = "Users")]
     public class ContributionsController : Controller
     {        
-        private UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        //private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ContributionsController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        public ContributionsController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
-            _context = context;
+            //_context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Contributions
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Contributions.Include(c => c.Month).Include(c => c.User);
+            var applicationDbContext = _unitOfWork.Contributions.GetDbSet().Include(c => c.Month).Include(c => c.User);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -37,7 +40,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions
+            var contribution = await _unitOfWork.Contributions.GetDbSet()
                 .Include(c => c.Month)
                 .Include(c => c.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -52,11 +55,11 @@ namespace MyOSBB.Controllers
         // GET: Contributions/Create
         public IActionResult Create()
         {
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name");
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name");
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
 
             var user = _userManager.GetUserAsync(User).Result;
-            ViewData["UserId"] = _context.Users.Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
+            ViewData["UserId"] = _unitOfWork.Users.GetDbSet().Where(r => r.Id == user.Id).FirstOrDefaultAsync().Result.Id;
             return View();
         }
 
@@ -69,11 +72,12 @@ namespace MyOSBB.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(contribution);
-                await _context.SaveChangesAsync();
+                //_unitOfWork.Contributions.GetDbSet().Add(contribution);
+                _unitOfWork.Contributions.Insert(contribution);
+                await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", contribution.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", contribution.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
             ViewData["UserId"] = contribution.UserId;
             return View(contribution);
@@ -87,12 +91,12 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
+            var contribution = await _unitOfWork.Contributions.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
             if (contribution == null)
             {
                 return NotFound();
             }
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", contribution.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", contribution.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
             ViewData["UserId"] = contribution.UserId;
             return View(contribution);
@@ -114,8 +118,8 @@ namespace MyOSBB.Controllers
             {
                 try
                 {
-                    _context.Update(contribution);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.Update(contribution);
+                    await _unitOfWork.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -130,7 +134,7 @@ namespace MyOSBB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MonthId"] = new SelectList(_context.Months, "Id", "Name", contribution.MonthId);
+            ViewData["MonthId"] = new SelectList(_unitOfWork.Months.GetDbSet(), "Id", "Name", contribution.MonthId);
             //ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contribution.UserId);
             ViewData["UserId"] = contribution.UserId;
             return View(contribution);
@@ -144,7 +148,7 @@ namespace MyOSBB.Controllers
                 return NotFound();
             }
 
-            var contribution = await _context.Contributions
+            var contribution = await _unitOfWork.Contributions.GetDbSet()
                 .Include(c => c.Month)
                 .Include(c => c.User)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -161,15 +165,15 @@ namespace MyOSBB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Contributions.Remove(contribution);
-            await _context.SaveChangesAsync();
+            var contribution = await _unitOfWork.Contributions.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
+            _unitOfWork.Contributions.GetDbSet().Remove(contribution);
+            await _unitOfWork.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ContributionExists(int id)
         {
-            return _context.Contributions.Any(e => e.Id == id);
+            return _unitOfWork.Contributions.GetDbSet().Any(e => e.Id == id);
         }
     }
 }

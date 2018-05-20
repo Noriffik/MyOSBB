@@ -1,5 +1,3 @@
-using System;
-
 namespace MyOSBB.DAL.Models
 {
     public class ErrorViewModel

@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyOSBB.DAL.Data;
 using MyOSBB.DAL.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 
 namespace MyOSBB.DAL.Repositories
 {
@@ -20,7 +17,7 @@ namespace MyOSBB.DAL.Repositories
             dbSet = context.Set<TEntity>();
         }
 
-        public DbSet<TEntity> Get()
+        public DbSet<TEntity> GetDbSet()
         {
             return dbSet;
         }
@@ -58,7 +55,6 @@ namespace MyOSBB.DAL.Repositories
         public void Update(TEntity entityToUpdate)
         {
             dbSet.Update(entityToUpdate);
-            //_context.Entry(entityToUpdate).State = EntityState.Modified;
         }
     }
 }

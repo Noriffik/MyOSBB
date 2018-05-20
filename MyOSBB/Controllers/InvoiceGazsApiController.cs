@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyOSBB.DAL.Data;
+using MyOSBB.DAL.Interfaces;
 using MyOSBB.DAL.Models;
 using MyOSBB.DAL.Models.Invoices;
 
@@ -17,19 +15,19 @@ namespace MyOSBB.Controllers
     public class InvoiceGazsApiController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceGazsApiController(SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
+        public InvoiceGazsApiController(SignInManager<ApplicationUser> signInManager, IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/InvoiceGazsApi
         [HttpGet]
         public IEnumerable<InvoiceGaz> GetInvoiceGazs()
         {
-            var result = _context.InvoiceGazs.Include(r => r.Month).Include(r => r.User).ToList();
+            var result = _unitOfWork.InvoiceGazs.GetDbSet().Include(r => r.Month).Include(r => r.User).ToList();
             return result;
         }
 
@@ -37,13 +35,13 @@ namespace MyOSBB.Controllers
         public IEnumerable<InvoiceGazApi> PostInvoiceGazs(string userName, string password)
         {
             IList<InvoiceGazApi> result = new List<InvoiceGazApi>();
-            var user = _context.Users.Where(r => r.UserName == userName).FirstOrDefault();
+            var user = _unitOfWork.Users.GetDbSet().Where(r => r.UserName == userName).FirstOrDefault();
             if (user != null)
             {
                 var pass = _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false).Result;
                 if (pass.Succeeded)
                 {
-                    var data = _context.InvoiceGazs.Include(r => r.User).Include(r => r.Month).ToList();
+                    var data = _unitOfWork.InvoiceGazs.GetDbSet().Include(r => r.User).Include(r => r.Month).ToList();
                     result = data.Select(r => new InvoiceGazApi() { Id = r.Id, InvoiceDate = r.InvoiceDate, ProviderName = r.ProviderName, Payment = r.Payment, Debt = r.Debt, Overpaid = r.Overpaid, PrevNumber = r.PrevNumber, CurrentNumber = r.CurrentNumber, MonthName = r.Month.Name, FlatNumber = r.User.FlatNumber }).ToList();
                 }
             }
@@ -59,7 +57,7 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var invoiceGaz = await _context.InvoiceGazs.SingleOrDefaultAsync(m => m.Id == id);
+            var invoiceGaz = await _unitOfWork.InvoiceGazs.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
 
             if (invoiceGaz == null)
             {
@@ -83,11 +81,11 @@ namespace MyOSBB.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(invoiceGaz).State = EntityState.Modified;
+            _unitOfWork.Entry(invoiceGaz).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -128,21 +126,21 @@ namespace MyOSBB.Controllers
                 return BadRequest(ModelState);
             }
 
-            var invoiceGaz = await _context.InvoiceGazs.SingleOrDefaultAsync(m => m.Id == id);
+            var invoiceGaz = await _unitOfWork.InvoiceGazs.GetDbSet().SingleOrDefaultAsync(m => m.Id == id);
             if (invoiceGaz == null)
             {
                 return NotFound();
             }
 
-            _context.InvoiceGazs.Remove(invoiceGaz);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Remove(invoiceGaz);
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(invoiceGaz);
         }
 
         private bool InvoiceGazExists(int id)
         {
-            return _context.InvoiceGazs.Any(e => e.Id == id);
+            return _unitOfWork.InvoiceGazs.GetDbSet().Any(e => e.Id == id);
         }
     }
 }
