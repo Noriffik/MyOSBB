@@ -9,6 +9,7 @@ using MyOSBB.DAL.Models;
 using MyOSBB.Services;
 using MyOSBB.Infrastructure;
 using MyOSBB.DAL.Interfaces;
+using MyOSBB.DAL.Repositories;
 
 namespace MyOSBB
 {
@@ -54,6 +55,9 @@ namespace MyOSBB
             services.AddTransient<IEmailSender, EmailSender>();
 
             //services.AddSingleton(Configuration);
+
+            // Use repository in scope instead in unitofwork as singleton
+            services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
 
             services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
